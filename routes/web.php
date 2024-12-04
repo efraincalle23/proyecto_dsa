@@ -16,3 +16,7 @@ Route::resource('documentos', DocumentoController::class);
 Route::get('documento', function () {
     return view('documentos/documentos');
 });
+
+use App\Http\Controllers\RolController;
+
+Route::get('/insertar-roles', [RolController::class, 'insertarRoles']);

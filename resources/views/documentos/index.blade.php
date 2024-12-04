@@ -17,6 +17,7 @@
                 <th>Fecha de Recepción</th>
                 <th>Remitente</th>
                 <th>Tipo</th>
+                <th>Archivo</th>
                 <th>Acciones</th>
             </tr>
         </thead>
@@ -30,8 +31,24 @@
                     <td>{{ $documento->tipo }}</td>
                     <td>
                         @if ($documento->archivo)
-                            <a href="{{ asset('storage/' . $documento->archivo) }}"
-                                target="_blank">{{ basename($documento->archivo) }}</a>
+                            @php
+                                $extension = pathinfo($documento->archivo, PATHINFO_EXTENSION);
+                            @endphp
+                            <!-- Si el archivo es PDF -->
+                            @if ($extension == 'pdf')
+                                <a href="{{ asset('storage/' . $documento->archivo) }}" target="_blank">
+                                    <i class="bi bi-filetype-pdf" style="font-size: 24px; color: red;"></i>
+                                </a>
+                                <!-- Si el archivo es DOCX -->
+                            @elseif ($extension == 'docx')
+                                <a href="{{ asset('storage/' . $documento->archivo) }}" target="_blank">
+                                    <i class="bi bi-file-earmark-word-fill" style="font-size: 24px; color: blue;"></i>
+                                </a>
+                            @else
+                                <a href="{{ asset('storage/' . $documento->archivo) }}" target="_blank">
+                                    <i class="fa fa-file" style="font-size: 24px;"></i> Archivo
+                                </a>
+                            @endif
                         @else
                             No hay archivo
                         @endif
@@ -43,13 +60,12 @@
                             Editar
                         </button>
 
-                        <!-- Formulario de Eliminar -->
-                        <form action="{{ route('documentos.destroy', $documento->id_documento) }}" method="POST"
-                            style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-archive-fill"></i></button>
-                        </form>
+                        <!-- Botón de Eliminar que activa el modal -->
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal"
+                            data-bs-target="#deleteModal{{ $documento->id_documento }}">
+                            <i class="bi bi-archive-fill"></i>
+                        </button>
+
                     </td>
                 </tr>
 
@@ -69,18 +85,46 @@
                                         aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <!-- Otros campos de formulario aquí... -->
+                                    <div class="mb-3">
+                                        <label for="numero_oficio" class="form-label">Número de Oficio</label>
+                                        <input type="text" class="form-control" id="numero_oficio" name="numero_oficio"
+                                            value="{{ $documento->numero_oficio }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="fecha_recepcion" class="form-label">Fecha de Recepción</label>
+                                        <input type="date" class="form-control" id="fecha_recepcion"
+                                            name="fecha_recepcion" value="{{ $documento->fecha_recepcion }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="remitente" class="form-label">Remitente</label>
+                                        <input type="text" class="form-control" id="remitente" name="remitente"
+                                            value="{{ $documento->remitente }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="tipo" class="form-label">Tipo</label>
+                                        <input type="text" class="form-control" id="tipo" name="tipo"
+                                            value="{{ $documento->tipo }}" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="descripcion" class="form-label">Descripción</label>
+                                        <textarea class="form-control" id="descripcion" name="descripcion" required>{{ $documento->descripcion }}</textarea>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="observaciones" class="form-label">Observaciones</label>
+                                        <textarea class="form-control" id="observaciones" name="observaciones">{{ $documento->observaciones }}</textarea>
+                                    </div>
 
-                                    <!-- Mostrar el archivo actual, si existe -->
+                                    <!-- Mostrar el archivo actual -->
                                     @if ($documento->archivo)
                                         <div class="mb-3">
                                             <label class="form-label">Archivo Actual</label><br>
-                                            <a href="{{ asset('storage/' . $documento->archivo) }}"
-                                                target="_blank">{{ $documento->archivo }}</a>
+                                            <a href="{{ asset('storage/' . $documento->archivo) }}" target="_blank">
+                                                <i class="fa fa-file-pdf-o" style="font-size: 24px; color: red;"></i> PDF
+                                            </a>
                                         </div>
                                     @endif
 
-                                    <!-- Campo para subir un archivo nuevo -->
+                                    <!-- Campo para subir archivo nuevo -->
                                     <div class="mb-3">
                                         <label for="archivo" class="form-label">Subir Nuevo Archivo (PDF, DOCX)</label>
                                         <input type="file" class="form-control" id="archivo" name="archivo"
@@ -117,7 +161,8 @@
                         </div>
                         <div class="mb-3">
                             <label for="fecha_recepcion" class="form-label">Fecha de Recepción</label>
-                            <input type="date" class="form-control" id="fecha_recepcion" name="fecha_recepcion" required>
+                            <input type="date" class="form-control" id="fecha_recepcion" name="fecha_recepcion"
+                                required>
                         </div>
                         <div class="mb-3">
                             <label for="remitente" class="form-label">Remitente</label>
@@ -149,4 +194,69 @@
             </form>
         </div>
     </div>
+
+    <!-- Modal de Confirmación de Eliminación -->
+    @foreach ($documentos as $documento)
+        <div class="modal fade" id="deleteModal{{ $documento->id_documento }}" tabindex="-1"
+            aria-labelledby="deleteModalLabel{{ $documento->id_documento }}" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteModalLabel{{ $documento->id_documento }}">Confirmar Eliminación
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        ¿Estás seguro de que deseas eliminar este documento? Esta acción no se puede deshacer.
+                    </div>
+                    <div class="modal-footer">
+                        <!-- Botón para cancelar -->
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+
+                        <!-- Formulario de eliminación -->
+                        <form action="{{ route('documentos.destroy', $documento->id_documento) }}" method="POST"
+                            class="d-inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger">Eliminar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endforeach
+
+
+    <!-- Modal de Mensajes -->
+    @if (session('success') || session('error'))
+        <div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content {{ session('success') ? 'border-success' : 'border-danger' }}">
+                    <div class="modal-header {{ session('success') ? 'bg-success text-white' : 'bg-danger text-white' }}">
+                        <h5 class="modal-title" id="messageModalLabel">
+                            {{ session('success') ? 'Éxito' : 'Error' }}
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        {{ session('success') ?? session('error') }}
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+
+    @if (session('success') || session('error'))
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var messageModal = new bootstrap.Modal(document.getElementById('messageModal'));
+                messageModal.show();
+            });
+        </script>
+    @endif
 @endsection

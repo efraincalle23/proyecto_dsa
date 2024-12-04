@@ -11,11 +11,12 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('usuarios', function (Blueprint $table) {
-            $table->id('ID_Usuario');
-            $table->string('Nombre');
-            $table->string('Apellido');
-            $table->string('Email')->unique();
-            $table->string('Contrasena');
+            $table->id('id_usuario'); // Clave primaria
+            $table->string('nombre');
+            $table->string('apellido');
+            $table->string('email')->unique();
+            $table->string('password');
+            $table->foreignId('id_rol')->constrained('roles')->onDelete('cascade'); // FK a roles
             $table->timestamps();
         });
     }

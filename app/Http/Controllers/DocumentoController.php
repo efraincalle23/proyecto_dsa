@@ -31,28 +31,28 @@ class DocumentoController extends Controller
             'tipo' => 'required|max:20',
             'descripcion' => 'required|max:200',
             'observaciones' => 'nullable|max:200',
-            'archivo' => 'nullable|mimes:pdf,docx|max:2048', // Validación del archivo
+            'archivo' => 'nullable|mimes:pdf,docx|max:2048',
         ]);
 
-        // Subir el archivo si existe
-        if ($request->hasFile('archivo')) {
-            $archivoPath = $request->file('archivo')->store('documentos', 'public');
-        } else {
-            $archivoPath = null;
+        try {
+            $archivoPath = $request->hasFile('archivo') ? $request->file('archivo')->store('documentos', 'public') : null;
+
+            Documento::create([
+                'numero_oficio' => $request->numero_oficio,
+                'fecha_recepcion' => $request->fecha_recepcion,
+                'remitente' => $request->remitente,
+                'tipo' => $request->tipo,
+                'descripcion' => $request->descripcion,
+                'observaciones' => $request->observaciones,
+                'archivo' => $archivoPath,
+            ]);
+
+            return redirect()->route('documentos.index')->with('success', 'Documento guardado correctamente.');
+        } catch (\Exception $e) {
+            return redirect()->route('documentos.index')->with('error', 'Error al guardar el documento.');
         }
-
-        Documento::create([
-            'numero_oficio' => $request->numero_oficio,
-            'fecha_recepcion' => $request->fecha_recepcion,
-            'remitente' => $request->remitente,
-            'tipo' => $request->tipo,
-            'descripcion' => $request->descripcion,
-            'observaciones' => $request->observaciones,
-            'archivo' => $archivoPath,  // Guardamos la ruta del archivo
-        ]);
-
-        return redirect()->route('documentos.index');
     }
+
 
 
     public function update(Request $request, $id)
@@ -64,41 +64,57 @@ class DocumentoController extends Controller
             'tipo' => 'required|max:20',
             'descripcion' => 'required|max:200',
             'observaciones' => 'nullable|max:200',
-            'archivo' => 'nullable|mimes:pdf,docx|max:2048', // Validación de archivo
+            'archivo' => 'nullable|mimes:pdf,docx|max:2048',
         ]);
 
-        $documento = Documento::findOrFail($id);
+        try {
+            $documento = Documento::findOrFail($id);
 
-        // Si hay un archivo nuevo, subimos el archivo
-        if ($request->hasFile('archivo')) {
-            // Eliminar el archivo viejo, si existe
-            if ($documento->archivo) {
-                Storage::disk('public')->delete($documento->archivo);
+            if ($request->hasFile('archivo')) {
+                if ($documento->archivo) {
+                    Storage::disk('public')->delete($documento->archivo);
+                }
+                $archivoPath = $request->file('archivo')->store('documentos', 'public');
+            } else {
+                $archivoPath = $documento->archivo;
             }
-            $archivoPath = $request->file('archivo')->store('documentos', 'public');
-        } else {
-            $archivoPath = $documento->archivo;  // Si no se subió archivo, mantenemos el existente
+
+            $documento->update([
+                'numero_oficio' => $request->numero_oficio,
+                'fecha_recepcion' => $request->fecha_recepcion,
+                'remitente' => $request->remitente,
+                'tipo' => $request->tipo,
+                'descripcion' => $request->descripcion,
+                'observaciones' => $request->observaciones,
+                'archivo' => $archivoPath,
+            ]);
+
+            return redirect()->route('documentos.index')->with('success', 'Documento modificado correctamente.');
+        } catch (\Exception $e) {
+            return redirect()->route('documentos.index')->with('error', 'Error al modificar el documento.');
         }
-
-        $documento->update([
-            'numero_oficio' => $request->numero_oficio,
-            'fecha_recepcion' => $request->fecha_recepcion,
-            'remitente' => $request->remitente,
-            'tipo' => $request->tipo,
-            'descripcion' => $request->descripcion,
-            'observaciones' => $request->observaciones,
-            'archivo' => $archivoPath, // Guardamos la ruta del archivo
-        ]);
-
-        return redirect()->route('documentos.index');
     }
+
 
 
     // Eliminar un documento
     public function destroy($id)
     {
-        Documento::destroy($id);
-        return redirect()->route('documentos.index');
+        try {
+            $documento = Documento::findOrFail($id);
+
+            if ($documento->archivo) {
+                Storage::disk('public')->delete($documento->archivo);
+            }
+
+            $documento->delete();
+
+            return redirect()->route('documentos.index')->with('success', 'Documento eliminado correctamente.');
+        } catch (\Exception $e) {
+            return redirect()->route('documentos.index')->with('error', 'Error al eliminar el documento.');
+        }
     }
+
+
 
 }
