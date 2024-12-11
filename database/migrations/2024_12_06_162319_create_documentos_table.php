@@ -12,7 +12,7 @@ return new class extends Migration {
     {
         Schema::create('documentos', function (Blueprint $table) {
             $table->id('id_documento'); // Definir el ID como PK
-            $table->string('numero_oficio', 20);
+            $table->string('numero_oficio')->unique();
             $table->date('fecha_recepcion');
             $table->string('remitente', 50);
             $table->string('tipo', 20);

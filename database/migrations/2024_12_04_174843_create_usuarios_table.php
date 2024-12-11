@@ -16,7 +16,8 @@ return new class extends Migration {
             $table->string('apellido');
             $table->string('email')->unique();
             $table->string('password');
-            $table->foreignId('id_rol')->constrained('roles')->onDelete('cascade'); // FK a roles
+            $table->string('rol');
+            $table->string('foto')->nullable(); //  el campo foto
             $table->timestamps();
         });
     }

@@ -8,34 +8,6 @@
         Agregar Documento
     </button>
 
-    {{-- Filtros de búsqueda --}}
-    <form method="GET" action="{{ route('documentos.index') }}" class="mb-4">
-        <div class="row">
-            <div class="col-md-4">
-                <input type="text" name="numero_oficio" class="form-control" placeholder="Buscar por numero"
-                    value="{{ request('numero_oficio') }}">
-            </div>
-            <div class="col-md-4">
-                <input type="date" name="fecha_recepcion" class="form-control" placeholder="Buscar por fecha_recepcion"
-                    value="{{ request('fecha_recepcion') }}">
-            </div>
-            <div class="col-md-4">
-                <input type="text" name="remitente" class="form-control" placeholder="Buscar por remitente"
-                    value="{{ request('remitente') }}">
-            </div>
-
-        </div>
-        <div class="row mt-3">
-            <div class="col-md-12">
-                <button type="submit" class="btn btn-secondary me-2">
-                    <i class="fas fa-search"></i> Buscar
-                </button>
-                <a href="{{ route('documentos.index') }}" class="btn btn-outline-secondary">
-                    <i class="fas fa-reset"></i> Limpiar
-                </a>
-            </div>
-        </div>
-    </form>
     <!-- Tabla de documentos -->
     <table class="table table-striped">
         <thead>
@@ -149,7 +121,7 @@
                                     </div>
                                     <div class="mb-3">
                                         <label for="fecha_recepcion" class="form-label">Fecha de Recepción</label>
-                                        <input type="date" class="form-control" id="fecha_editar"
+                                        <input type="date" class="form-control" id="fecha_recepcion"
                                             name="fecha_recepcion" value="{{ $documento->fecha_recepcion }}" required>
                                     </div>
                                     <div class="mb-3">

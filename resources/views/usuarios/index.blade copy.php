@@ -45,61 +45,69 @@
                         </form>
 
                         {{-- Tabla de usuarios --}}
-                        <div class="container">
-                            <div class="row">
-                                @forelse($usuarios as $usuario)
-                                    <div class="col-md-4 mb-4">
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <!-- Foto -->
-                                                <div class="d-flex justify-content-center mb-3">
-                                                    <img src="{{ $usuario->foto ? asset('storage/' . $usuario->foto) : asset('path/to/default-avatar.png') }}"
-                                                        alt="Foto" class="img-fluid rounded-circle" width="80"
-                                                        height="80">
-                                                </div>
-                                                <!-- Nombre Completo -->
-                                                <h5 class="card-title text-center">{{ $usuario->nombre }}
-                                                    {{ $usuario->apellido }}</h5>
-                                                <!-- Rol -->
-                                                <p class="text-center">
-                                                    <span class="badge bg-primary">{{ $usuario->rol }}</span>
-                                                </p>
-                                                <!-- Email -->
-                                                <p class="text-center">{{ $usuario->email }}</p>
-                                                <!-- Fecha de Creación -->
-                                                <p class="text-center text-muted">
-                                                    {{ $usuario->created_at->format('d/m/Y') }}</p>
-                                                <!-- Acciones -->
-                                                <div class="d-flex justify-content-center gap-2">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Foto</th>
+                                        <th>ID</th>
+                                        <th>Nombre Completo</th>
+                                        <th>Email</th>
+                                        <th>Rol</th>
+                                        <th>Fecha Creación</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($usuarios as $usuario)
+                                        <tr>
+                                            <td>
+                                                <img src="{{ $usuario->foto ? asset('storage/' . $usuario->foto) : asset('path/to/default-avatar.png') }}"
+                                                    alt="Foto" class="img-fluid rounded-circle" width="40"
+                                                    height="40">
+                                            </td>
+                                            <td>{{ $usuario->id_usuario }}</td>
+                                            <td>{{ $usuario->nombre }} {{ $usuario->apellido }}</td>
+                                            <td>{{ $usuario->email }}</td>
+                                            <td>
+                                                <span class="badge bg-primary">
+                                                    {{ $usuario->rol }}
+                                                </span>
+                                            </td>
+                                            <td>{{ $usuario->created_at->format('d/m/Y') }}</td>
+                                            <td>
+                                                <div class="btn-group" role="group">
                                                     <!-- Botón de Editar -->
                                                     <button class="btn btn-warning btn-sm" data-bs-toggle="modal"
                                                         data-bs-target="#editarUsuarioModal{{ $usuario->id_usuario }}"
                                                         data-id="{{ $usuario->id_usuario }}"
                                                         data-nombre="{{ $usuario->nombre }}"
                                                         data-apellido="{{ $usuario->apellido }}"
-                                                        data-email="{{ $usuario->email }}" data-rol="{{ $usuario->rol }}">
+                                                        data-email="{{ $usuario->email }}"
+                                                        data-password="{{ $usuario->email }}"
+                                                        data-rol="{{ $usuario->rol }}">
                                                         <i class="bi bi-pencil-square"></i>
                                                     </button>
-                                                    <!-- Botón de Eliminar -->
-                                                    <button type="button" class="btn btn-danger btn-sm"
-                                                        data-bs-toggle="modal"
+                                                    <!-- Botón de Eliminar que activa el modal -->
+                                                    <button type="button" class="btn btn-danger" data-bs-toggle="modal"
                                                         data-bs-target="#deleteModal{{ $usuario->id_usuario }}">
                                                         <i class="bi bi-archive-fill"></i>
                                                     </button>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @empty
-                                    <div class="col-12">
-                                        <div class="alert alert-info text-center">
-                                            No se encontraron usuarios.
-                                        </div>
-                                    </div>
-                                @endforelse
-                            </div>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="6" class="text-center">
+                                                <div class="alert alert-info">
+                                                    No se encontraron usuarios.
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
                         </div>
-
 
                         {{-- Paginación --}}
                         <div class="d-flex justify-content-center">

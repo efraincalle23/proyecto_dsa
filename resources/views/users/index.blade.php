@@ -14,7 +14,7 @@
                     </div>
                     <div class="card-body">
                         {{-- Filtros de búsqueda --}}
-                        <form method="GET" action="{{ route('usuarios.index') }}" class="mb-4">
+                        <form method="GET" action="{{ route('users.index') }}" class="mb-4">
                             <div class="row">
                                 <div class="col-md-4">
                                     <input type="text" name="nombre" class="form-control"
@@ -37,7 +37,7 @@
                                     <button type="submit" class="btn btn-secondary me-2">
                                         <i class="fas fa-search"></i> Buscar
                                     </button>
-                                    <a href="{{ route('usuarios.index') }}" class="btn btn-outline-secondary">
+                                    <a href="{{ route('users.index') }}" class="btn btn-outline-secondary">
                                         <i class="fas fa-reset"></i> Limpiar
                                     </a>
                                 </div>
@@ -47,43 +47,42 @@
                         {{-- Tabla de usuarios --}}
                         <div class="container">
                             <div class="row">
-                                @forelse($usuarios as $usuario)
+                                @forelse($users as $user)
                                     <div class="col-md-4 mb-4">
                                         <div class="card">
                                             <div class="card-body">
                                                 <!-- Foto -->
                                                 <div class="d-flex justify-content-center mb-3">
-                                                    <img src="{{ $usuario->foto ? asset('storage/' . $usuario->foto) : asset('path/to/default-avatar.png') }}"
+                                                    <img src="{{ $user->foto ? asset('storage/' . $user->foto) : asset('path/to/default-avatar.png') }}"
                                                         alt="Foto" class="img-fluid rounded-circle" width="80"
                                                         height="80">
                                                 </div>
                                                 <!-- Nombre Completo -->
-                                                <h5 class="card-title text-center">{{ $usuario->nombre }}
-                                                    {{ $usuario->apellido }}</h5>
+                                                <h5 class="card-title text-center">{{ $user->nombre }}
+                                                    {{ $user->apellido }}</h5>
                                                 <!-- Rol -->
                                                 <p class="text-center">
-                                                    <span class="badge bg-primary">{{ $usuario->rol }}</span>
+                                                    <span class="badge bg-primary">{{ $user->rol }}</span>
                                                 </p>
                                                 <!-- Email -->
-                                                <p class="text-center">{{ $usuario->email }}</p>
+                                                <p class="text-center">{{ $user->email }}</p>
                                                 <!-- Fecha de Creación -->
                                                 <p class="text-center text-muted">
-                                                    {{ $usuario->created_at->format('d/m/Y') }}</p>
+                                                    {{ $user->created_at->format('d/m/Y') }}</p>
                                                 <!-- Acciones -->
                                                 <div class="d-flex justify-content-center gap-2">
                                                     <!-- Botón de Editar -->
                                                     <button class="btn btn-warning btn-sm" data-bs-toggle="modal"
-                                                        data-bs-target="#editarUsuarioModal{{ $usuario->id_usuario }}"
-                                                        data-id="{{ $usuario->id_usuario }}"
-                                                        data-nombre="{{ $usuario->nombre }}"
-                                                        data-apellido="{{ $usuario->apellido }}"
-                                                        data-email="{{ $usuario->email }}" data-rol="{{ $usuario->rol }}">
+                                                        data-bs-target="#editarUsuarioModal{{ $user->id }}"
+                                                        data-id="{{ $user->id }}" data-nombre="{{ $user->nombre }}"
+                                                        data-apellido="{{ $user->apellido }}"
+                                                        data-email="{{ $user->email }}" data-rol="{{ $user->rol }}">
                                                         <i class="bi bi-pencil-square"></i>
                                                     </button>
                                                     <!-- Botón de Eliminar -->
                                                     <button type="button" class="btn btn-danger btn-sm"
                                                         data-bs-toggle="modal"
-                                                        data-bs-target="#deleteModal{{ $usuario->id_usuario }}">
+                                                        data-bs-target="#deleteModal{{ $user->id }}">
                                                         <i class="bi bi-archive-fill"></i>
                                                     </button>
                                                 </div>
@@ -103,7 +102,7 @@
 
                         {{-- Paginación --}}
                         <div class="d-flex justify-content-center">
-                            {{ $usuarios->appends(request()->input())->links() }}
+                            {{ $users->appends(request()->input())->links() }}
                         </div>
                     </div>
                 </div>
@@ -118,7 +117,7 @@
                         <h5 class="modal-title">Crear Usuario</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <form id="formCrearUsuario" method="POST" action="{{ route('usuarios.store') }}"
+                    <form id="formCrearUsuario" method="POST" action="{{ route('users.store') }}"
                         enctype="multipart/form-data">
                         @csrf
                         <div class="modal-body">
@@ -161,34 +160,34 @@
         </div>
 
         {{-- Modal Editar Usuario --}}
-        @foreach ($usuarios as $usuario)
-            <div class="modal fade" id="editarUsuarioModal{{ $usuario->id_usuario }}" tabindex="-1">
+        @foreach ($users as $user)
+            <div class="modal fade" id="editarUsuarioModal{{ $user->id }}" tabindex="-1">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">Editar Usuario</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
-                        <form action="{{ route('usuarios.update', $usuario->id_usuario) }}" method="POST"
+                        <form action="{{ route('users.update', $user->id) }}" method="POST"
                             enctype="multipart/form-data">
                             @csrf
                             @method('PUT')
                             <div class="modal-body">
-                                <input type="hidden" name="id_usuario" value="{{ $usuario->id_usuario }}">
+                                <input type="hidden" name="id_usuario" value="{{ $user->id_user }}">
                                 <div class="mb-3">
                                     <label>Nombre</label>
                                     <input type="text" class="form-control" name="nombre"
-                                        value="{{ $usuario->nombre }}" required>
+                                        value="{{ $user->nombre }}" required>
                                 </div>
                                 <div class="mb-3">
                                     <label>Apellido</label>
                                     <input type="text" class="form-control" name="apellido"
-                                        value="{{ $usuario->apellido }}" required>
+                                        value="{{ $user->apellido }}" required>
                                 </div>
                                 <div class="mb-3">
                                     <label>Email</label>
                                     <input type="email" class="form-control" name="email"
-                                        value="{{ $usuario->email }}" required>
+                                        value="{{ $user->email }}" required>
                                 </div>
                                 <div class="mb-3">
                                     <label>Contraseña (opcional)</label>
@@ -198,12 +197,12 @@
                                 <div class="mb-3">
                                     <label>Rol</label>
                                     <select class="form-control" name="rol" required>
-                                        <option value="Jefa DSA" {{ $usuario->rol == 'Jefa DSA' ? 'selected' : '' }}>Jefa
+                                        <option value="Jefa DSA" {{ $user->rol == 'Jefa DSA' ? 'selected' : '' }}>Jefa
                                             DSA</option>
                                         <option value="Administrador"
-                                            {{ $usuario->rol == 'Administrador' ? 'selected' : '' }}>Administrador</option>
+                                            {{ $user->rol == 'Administrador' ? 'selected' : '' }}>Administrador</option>
                                         <option value="Administrativo"
-                                            {{ $usuario->rol == 'Administrativo' ? 'selected' : '' }}>Administrativo
+                                            {{ $user->rol == 'Administrativo' ? 'selected' : '' }}>Administrativo
                                         </option>
                                     </select>
                                 </div>
@@ -224,8 +223,8 @@
         @endforeach
 
         {{-- Modal Eliminar Usuario --}}
-        @foreach ($usuarios as $usuario)
-            <div class="modal fade" id="deleteModal{{ $usuario->id_usuario }}" tabindex="-1">
+        @foreach ($users as $user)
+            <div class="modal fade" id="deleteModal{{ $user->id }}" tabindex="-1">
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -236,7 +235,7 @@
                             ¿Estás seguro de que deseas eliminar a este usuario?
                         </div>
                         <div class="modal-footer">
-                            <form action="{{ route('usuarios.destroy', $usuario->id_usuario) }}" method="POST">
+                            <form action="{{ route('users.destroy', $user->id) }}" method="POST">
                                 @csrf
                                 @method('DELETE')
                                 <button type="button" class="btn btn-secondary"

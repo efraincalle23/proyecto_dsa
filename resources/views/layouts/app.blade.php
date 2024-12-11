@@ -25,22 +25,53 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
-                <li class="nav-item"><a class="nav-link" href="/">Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link" href="/usuarios">Usuarios</a></li>
+                <li class="nav-item"><a class="nav-link" href="/dashboard">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link" href="/users">Usuarios</a></li>
                 <li class="nav-item"><a class="nav-link" href="/documentos">Documentos</a></li>
+                <li class="nav-item"><a class="nav-link" href="/historicos">Historicos</a></li>
             </ul>
             <!-- Contenido a la derecha -->
             <ul class="navbar-nav ms-auto">
-                <!-- Ejemplo de ícono o información adicional -->
-                <li class="nav-item">
-                    <a class="nav-link" href="#">
-                        <i class="bi bi-person-circle"></i> Perfil
+                <!-- Ícono de Notificaciones -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link" href="#" id="notificationsDropdown" role="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-bell"></i>
+                        <span
+                            class="badge bg-danger rounded-pill position-absolute top-0 start-100 translate-middle">3</span>
                     </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown">
+                        <li><a class="dropdown-item" href="#">Notificación 1</a></li>
+                        <li><a class="dropdown-item" href="#">Notificación 2</a></li>
+                        <li><a class="dropdown-item" href="#">Notificación 3</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item text-center" href="#">Ver todas las notificaciones</a></li>
+                    </ul>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/logout">
-                        <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+
+                <!-- Ícono de Usuario -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-person-circle"></i> {{ Auth::user()->nombre ?? 'Perfil' }}
                     </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown"
+                        style="max-height: 300px; overflow-y: auto;">
+                        <li><a class="dropdown-item" href="#">Ver perfil</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li>
+                            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-inline">
+                                @csrf
+                                <button type="submit" class="dropdown-item text-danger">
+                                    <i class="bi bi-box-arrow-right"></i> Cerrar sesión
+                                </button>
+                            </form>
+                        </li>
+                    </ul>
                 </li>
             </ul>
         </div>
@@ -53,6 +84,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
     </script>
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 </body>
 

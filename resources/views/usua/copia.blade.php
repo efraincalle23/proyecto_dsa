@@ -9,32 +9,37 @@
     </button>
 
     <!-- Tabla de usuarios -->
-    <div class="container">
-        <div class="row">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Apellido</th>
+                <th>Email</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
             @foreach ($usuarios as $usuario)
-                <div class="col-md-4 mb-4">
-                    <div class="card">
-                        <img src="{{ $usuario->foto ? asset('storage/' . $usuario->foto) : asset('storage/fotos/default.png') }}"
-                            class="card-img-top" alt="Foto de {{ $usuario->Nombre }}">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ $usuario->Nombre }} {{ $usuario->Apellido }}</h5>
-                            <p class="card-text"><strong>Rol:</strong> {{ $usuario->rol }}</p>
-                            <p class="card-text"><strong>Email:</strong> {{ $usuario->Email }}</p>
-                            <p class="card-text"><strong>Fecha de Creación:</strong>
-                                {{ $usuario->created_at->format('d/m/Y') }}</p>
+                <tr>
+                    <td>{{ $usuario->ID_Usuario }}</td>
+                    <td>{{ $usuario->Nombre }}</td>
+                    <td>{{ $usuario->Apellido }}</td>
+                    <td>{{ $usuario->Email }}</td>
+                    <td>
+                        <!-- Botón de Editar -->
+                        <button class="btn btn-warning btn-sm" data-bs-toggle="modal"
+                            data-bs-target="#editModal{{ $usuario->ID_Usuario }}">
+                            Editar
+                        </button>
 
-                            <!-- Botones de acciones -->
-                            <button class="btn btn-warning btn-sm" data-bs-toggle="modal"
-                                data-bs-target="#editModal{{ $usuario->ID_Usuario }}">
-                                Editar
-                            </button>
-                            <button class="btn btn-danger btn-sm" data-bs-toggle="modal"
-                                data-bs-target="#deleteModal{{ $usuario->ID_Usuario }}">
-                                Eliminar
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                        <!-- Botón de Eliminar -->
+                        <button class="btn btn-danger btn-sm" data-bs-toggle="modal"
+                            data-bs-target="#deleteModal{{ $usuario->ID_Usuario }}">
+                            Eliminar
+                        </button>
+                    </td>
+                </tr>
 
                 <!-- Modal de Edición -->
                 <div class="modal fade" id="editModal{{ $usuario->ID_Usuario }}" tabindex="-1"
@@ -104,9 +109,8 @@
                     </div>
                 </div>
             @endforeach
-        </div>
-    </div>
-
+        </tbody>
+    </table>
 
     <!-- Modal de Creación -->
     <div class="modal fade" id="createModal" tabindex="-1" aria-labelledby="createModalLabel" aria-hidden="true">
