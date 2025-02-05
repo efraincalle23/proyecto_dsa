@@ -76,25 +76,25 @@
                     <div class="col-md-3">
                         <div class="card-summary">
                             <h4>Documentos</h4>
-                            <p>186</p>
+                            <p>{{ $total_documentos }}</p>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="card-summary">
                             <h4>Usuarios</h4>
-                            <p>9</p>
+                            <p>{{ $usuarios_count }}</p>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="card-summary">
                             <h4>Pendientes</h4>
-                            <p>80</p>
+                            <p>{{ $pendientes_count }}</p>
                         </div>
                     </div>
                     <div class="col-md-3">
                         <div class="card-summary">
                             <h4>Atendidos</h4>
-                            <p>106</p>
+                            <p>{{ $atendidos_count }}</p>
                         </div>
                     </div>
                 </div>
@@ -110,29 +110,16 @@
                     <!-- Recent Documents -->
                     <div class="col-md-4">
                         <div class="recent-docs">
-                            <h5>Documentos recientes</h5>
-                            <div class="doc-item">
-                                <span>Oficio 1401</span>
-                                <span class="badge bg-success">Atendido</span>
-                            </div>
-                            <div class="doc-item">
-                                <span>Oficio 1402</span>
-                                <span class="badge bg-warning">Para firma</span>
-                            </div>
-                            <div class="doc-item">
-                                <span>Oficio 1403</span>
-                                <span class="badge bg-success">Atendido</span>
-                            </div>
-                            <div class="doc-item">
-                                <span>Oficio 1404</span>
-                                <span class="badge bg-danger">Observado</span>
-                            </div>
-                            <div class="doc-item">
-                                <span>Oficio 1405</span>
-                                <span class="badge bg-success">Atendido</span>
-                            </div>
+                            <h5>Documentos recibidos</h5>
+                            @foreach ($documentosRecibidos as $documento)
+                                <div class="doc-item">
+                                    <span>{{ $documento->nombre_doc }}</span>
+                                    <span class="badge bg-success">{{ $documento->estado }}</span>
+                                </div>
+                            @endforeach
+
                             <div class="text-center mt-3">
-                                <button class="btn btn-primary btn-sm">Ver más</button>
+                                <a href="/documentos_recibidos" class="btn btn-primary btn-sm">Ver más</a>
                             </div>
                         </div>
                     </div>
@@ -150,17 +137,17 @@
         const chart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                labels: @json($diasUltimos7Dias), // Las etiquetas con los últimos 7 días
                 datasets: [{
-                        label: 'Este mes',
-                        data: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120],
+                        label: 'Documentos Emitidos',
+                        data: @json(array_values($documentosEmitidosData)), // Cantidad de documentos emitidos por día
                         borderColor: '#FF6384',
                         backgroundColor: 'rgba(255, 99, 132, 0.2)',
                         fill: true
                     },
                     {
-                        label: 'El mes pasado',
-                        data: [15, 25, 35, 45, 55, 65, 75, 85, 95, 105, 115, 125],
+                        label: 'Documentos Recibidos',
+                        data: @json(array_values($documentosRecibidosData)), // Cantidad de documentos recibidos por día
                         borderColor: '#36A2EB',
                         backgroundColor: 'rgba(54, 162, 235, 0.2)',
                         fill: true

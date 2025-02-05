@@ -9,6 +9,20 @@ use Illuminate\Support\Facades\Storage;
 
 class UserController extends AuthenticatedController
 {
+    public function __construct()
+    {
+        // Middleware de autenticación general para todas las funciones
+        $this->middleware('auth');
+
+        // Aplicar el middleware de rol solo a la función 'index'
+        $this->middleware(function ($request, $next) {
+            if (!request()->user()->hasAnyRole(['Administrador', 'Jefe DSA'])) {
+                abort(403, 'Acceso denegado');
+            }
+            return $next($request);
+        })->only(['index']);  // Aplica solo a la función 'index'
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -85,7 +99,7 @@ class UserController extends AuthenticatedController
     public function show($id) // Puedes usar la inyección de modelo si lo prefieres
     {
         $user = User::findOrFail($id); // Cambiado de Usuario a User
-        return view('users.show', compact('user')); // Cambiado de 'usuarios.show' a 'users.show'
+        return view('users.profile', compact('user')); // Cambiado de 'usuarios.show' a 'users.show'
     }
 
     /**
@@ -93,6 +107,7 @@ class UserController extends AuthenticatedController
      */
     public function update(Request $request, $id)
     {
+        //funcional
         $user = User::findOrFail($id); // Cambiado de Usuario a User
 
         // Validación de los campos
@@ -139,6 +154,129 @@ class UserController extends AuthenticatedController
         }
     }
 
+    public function updateFoto(Request $request, $id)
+    {
+        //funcional
+        $user = User::findOrFail($id); // Cambiado de Usuario a User
+
+        // Validación de los campos
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'apellido' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id, // Cambiado de 'usuarios' a 'users' y ajustado el identificador
+            'rol' => 'required|string|max:255',
+            'password' => 'nullable|min:8',  // La contraseña es opcional y si se proporciona debe tener al menos 8 caracteres
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048' // Validación de la foto
+        ]);
+
+        try {
+            // Mantenemos la foto actual si no se sube una nueva
+            $fotoPath = $user->foto; // Foto actual
+
+            if ($request->hasFile('foto')) {
+                // Si se sube una nueva foto, eliminamos la antigua y subimos la nueva
+                if ($fotoPath && $fotoPath != 'fotos/default.png') {
+                    Storage::disk('public')->delete($fotoPath); // Eliminar foto anterior
+                }
+
+                // Guardamos la nueva foto
+                $fotoPath = $request->file('foto')->store('fotos', 'public');
+            }
+
+            // Actualizamos los demás campos
+            $user->nombre = $request->nombre;
+            $user->apellido = $request->apellido;
+            $user->email = $request->email;
+            $user->rol = $request->rol;
+
+            if ($request->filled('password')) {
+                $user->password = Hash::make($request->password);
+            }
+
+            $user->foto = $fotoPath; // Guardamos la foto, ya sea la nueva o la antigua
+
+            $user->save(); // Guardamos los cambios
+
+            return redirect()->route('users.profile')->with('success', 'Usuario actualizado correctamente.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Error al actualizar el usuario: ' . $e->getMessage());
+        }
+    }
+
+    public function updatefuncionaenmodal(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'apellido' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'rol' => 'required|string|max:255',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+        ]);
+
+        try {
+            if ($request->filled('new_password')) {
+                if (!Hash::check($request->current_password, $user->password)) {
+                    return back()->withErrors(['current_password' => 'La contraseña actual no es correcta']);
+                }
+
+                if ($request->new_password !== $request->new_password_confirmation) {
+                    return back()->withErrors(['new_password' => 'Las contraseñas nuevas no coinciden']);
+                }
+
+                if (strlen($request->new_password) < 8) {
+                    return back()->withErrors(['new_password' => 'La contraseña debe tener al menos 8 caracteres']);
+                }
+
+                $user->password = Hash::make($request->new_password);
+            }
+
+            $fotoPath = $user->foto;
+            if ($request->hasFile('foto')) {
+                if ($fotoPath && $fotoPath != 'fotos/default.png') {
+                    Storage::disk('public')->delete($fotoPath);
+                }
+                $fotoPath = $request->file('foto')->store('fotos', 'public');
+            }
+
+            $user->nombre = $request->nombre;
+            $user->apellido = $request->apellido;
+            $user->email = $request->email;
+            $user->rol = $request->rol;
+            $user->foto = $fotoPath;
+            $user->save();
+
+            return redirect()->back()->with('success', 'Usuario actualizado correctamente.');
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['general' => 'Error al actualizar el usuario: ' . $e->getMessage()]);
+        }
+    }
+
+    public function updatePassword(Request $request, $id)
+    {
+        // Validación de los campos
+        $validated = $request->validate([
+            'current_password' => 'required|string',
+            'new_password' => 'required|string|min:8|confirmed',  // Confirmación de nueva contraseña
+        ]);
+
+        // Obtener el usuario
+        $user = User::find($id);
+
+        // Verificar que la contraseña actual sea correcta
+        if (!Hash::check($request->current_password, $user->password)) {
+            // Si no es correcta, redirigir con un error
+            return redirect()->back()->withErrors(['current_password' => 'La contraseña actual es incorrecta.']);
+        }
+
+        // Actualizar la contraseña
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+
+        // Redirigir con un mensaje de éxito
+        return redirect()->back()->with('success', 'La contraseña se ha actualizado correctamente.');
+    }
 
     /**
      * Remove the specified resource from storage.
@@ -164,5 +302,4 @@ class UserController extends AuthenticatedController
 
         return response()->json(['exists' => $exists]);
     }
-
 }

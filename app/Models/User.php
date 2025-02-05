@@ -6,11 +6,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
+    use HasRoles; // Habilita la funcionalidad de roles y permisos
+
+
 
     /**
      * The attributes that are mass assignable.
@@ -47,5 +51,17 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::created(function ($user) {
+            // Si el campo 'rol' tiene un valor, asignamos el rol usando Spatie
+            if ($user->rol) {
+                $user->assignRole($user->rol);
+            }
+        });
     }
 }

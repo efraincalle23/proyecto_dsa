@@ -15,4 +15,9 @@ class AuthenticatedController extends BaseController
     {
         $this->middleware('auth'); // Aplica el middleware a todas las rutas de este controlador
     }
+    public function dashboard()
+    {
+        $rol = request()->user()->rol; // Ya está autenticado
+        return view('dashboard', compact('rol'));
+    }
 }

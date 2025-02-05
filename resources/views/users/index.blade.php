@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container">
+    <div class="container-fluid">
         <div class="row">
             <div class="col-md-12">
                 <div class="card">
@@ -15,78 +15,85 @@
                     <div class="card-body">
                         {{-- Filtros de búsqueda --}}
                         <form method="GET" action="{{ route('users.index') }}" class="mb-4">
-                            <div class="row">
-                                <div class="col-md-4">
+                            <div class="row align-items-center">
+                                <div class="col-md-3">
                                     <input type="text" name="nombre" class="form-control"
                                         placeholder="Buscar por nombre" value="{{ request('nombre') }}">
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <input type="text" name="email" class="form-control" placeholder="Buscar por email"
                                         value="{{ request('email') }}">
                                 </div>
-                                <div class="col-md-4">
+                                <div class="col-md-3">
                                     <select class="form-control" name="rol" required>
-                                        <option value="Jefa DSA">Jefa DSA</option>
+                                        <option value="Jefe DSA">Jefe DSA</option>
                                         <option value="Administrador">Administrador</option>
                                         <option value="Administrativo">Administrativo</option>
                                     </select>
                                 </div>
-                            </div>
-                            <div class="row mt-3">
-                                <div class="col-md-12">
-                                    <button type="submit" class="btn btn-secondary me-2">
+                                <div class="col-md-3 d-flex gap-2">
+                                    <button type="submit" class="btn btn-secondary w-100">
                                         <i class="fas fa-search"></i> Buscar
                                     </button>
-                                    <a href="{{ route('users.index') }}" class="btn btn-outline-secondary">
-                                        <i class="fas fa-reset"></i> Limpiar
+                                    <a href="{{ route('users.index') }}" class="btn btn-outline-secondary w-100">
+                                        <i class="fas fa-sync-alt"></i> Limpiar
                                     </a>
                                 </div>
                             </div>
                         </form>
 
+
                         {{-- Tabla de usuarios --}}
-                        <div class="container">
+                        <div class="container-fluid">
                             <div class="row">
                                 @forelse($users as $user)
                                     <div class="col-md-4 mb-4">
                                         <div class="card">
-                                            <div class="card-body">
+                                            <div class="card-body text-center p-4">
                                                 <!-- Foto -->
-                                                <div class="d-flex justify-content-center mb-3">
+                                                <div class="mb-3">
                                                     <img src="{{ $user->foto ? asset('storage/' . $user->foto) : asset('path/to/default-avatar.png') }}"
-                                                        alt="Foto" class="img-fluid rounded-circle" width="80"
-                                                        height="80">
+                                                        alt="Foto"
+                                                        class="img-fluid rounded-circle border border-light shadow-sm"
+                                                        width="70" height="70">
                                                 </div>
+
                                                 <!-- Nombre Completo -->
-                                                <h5 class="card-title text-center">{{ $user->nombre }}
-                                                    {{ $user->apellido }}</h5>
+                                                <h5 class="fw-semibold text-dark">{{ $user->nombre }} {{ $user->apellido }}
+                                                </h5>
+
                                                 <!-- Rol -->
-                                                <p class="text-center">
-                                                    <span class="badge bg-primary">{{ $user->rol }}</span>
+                                                <p class="mb-1">
+                                                    <span
+                                                        class="badge text-bg-secondary text-uppercase px-3 py-1">{{ $user->rol }}</span>
                                                 </p>
+
                                                 <!-- Email -->
-                                                <p class="text-center">{{ $user->email }}</p>
+                                                <p class="text-muted small mb-2">{{ $user->email }}</p>
+
                                                 <!-- Fecha de Creación -->
-                                                <p class="text-center text-muted">
-                                                    {{ $user->created_at->format('d/m/Y') }}</p>
+                                                <p class="text-muted small">{{ $user->created_at->format('d/m/Y') }}</p>
+
                                                 <!-- Acciones -->
                                                 <div class="d-flex justify-content-center gap-2">
                                                     <!-- Botón de Editar -->
-                                                    <button class="btn btn-warning btn-sm" data-bs-toggle="modal"
+                                                    <button class="btn btn-outline-warning btn-sm" data-bs-toggle="modal"
                                                         data-bs-target="#editarUsuarioModal{{ $user->id }}"
                                                         data-id="{{ $user->id }}" data-nombre="{{ $user->nombre }}"
                                                         data-apellido="{{ $user->apellido }}"
                                                         data-email="{{ $user->email }}" data-rol="{{ $user->rol }}">
-                                                        <i class="bi bi-pencil-square"></i>
+                                                        <i class="bi bi-pencil"></i>
                                                     </button>
+
                                                     <!-- Botón de Eliminar -->
-                                                    <button type="button" class="btn btn-danger btn-sm"
+                                                    <button type="button" class="btn btn-outline-danger btn-sm"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#deleteModal{{ $user->id }}">
-                                                        <i class="bi bi-archive-fill"></i>
+                                                        <i class="bi bi-trash"></i>
                                                     </button>
                                                 </div>
                                             </div>
+
                                         </div>
                                     </div>
                                 @empty
@@ -140,9 +147,10 @@
                             <div class="mb-3">
                                 <label>Rol</label>
                                 <select class="form-control" name="rol" required>
-                                    <option value="Jefa DSA">Jefa DSA</option>
+                                    <option value="Jefe DSA">Jefe DSA</option>
                                     <option value="Administrador">Administrador</option>
                                     <option value="Administrativo">Administrativo</option>
+                                    <option value="Secretaria">Secretaria</option>
                                 </select>
                             </div>
                             <div class="mb-3">
@@ -197,12 +205,15 @@
                                 <div class="mb-3">
                                     <label>Rol</label>
                                     <select class="form-control" name="rol" required>
-                                        <option value="Jefa DSA" {{ $user->rol == 'Jefa DSA' ? 'selected' : '' }}>Jefa
+                                        <option value="Jefe DSA" {{ $user->rol == 'Jefe DSA' ? 'selected' : '' }}>Jefe
                                             DSA</option>
                                         <option value="Administrador"
                                             {{ $user->rol == 'Administrador' ? 'selected' : '' }}>Administrador</option>
                                         <option value="Administrativo"
                                             {{ $user->rol == 'Administrativo' ? 'selected' : '' }}>Administrativo
+                                        </option>
+                                        <option value="Secretaria" {{ $user->rol == 'Secretaria' ? 'selected' : '' }}>
+                                            Secretaria
                                         </option>
                                     </select>
                                 </div>

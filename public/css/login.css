@@ -1,0 +1,102 @@
+/* Slider de fondo */
+.background-slider {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    /* Detrás del contenido */
+    overflow: hidden;
+}
+
+.background-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out;
+}
+
+.image1 {
+    background-image: url("/assets/images/img1.jpeg");
+}
+
+.image2 {
+    background-image: url("/assets/images/img2.jpeg");
+}
+
+.image3 {
+    background-image: url("/assets/images/img2.jpeg");
+}
+
+.background-image.active {
+    opacity: 1;
+}
+
+.background-image.active {
+    opacity: 1;
+}
+
+/* Estilo del formulario */
+body {
+    font-family: Jost, sans-serif;
+}
+
+/* Overlay semitransparente */
+.background-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    /* Negro semitransparente */
+    z-index: -1;
+    /* Detrás del contenido */
+}
+
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-form {
+    background: #ffffff;
+    /* Fondo semitransparente */
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 400px;
+}
+
+.btn-primary {
+    background-color: #6c63ff;
+    border: none;
+    border-radius: 0.5rem;
+}
+
+.btn-primary:hover {
+    background-color: #574bdb;
+}
+
+.logo {
+    display: block;
+    margin: 0 auto 20px;
+    max-width: 120px;
+    margin-bottom: 5px;
+}
+
+h5 {
+    margin-top: 0;
+    /* Elimina el margen superior */
+    margin-bottom: 5px;
+    /* Ajusta el margen inferior */
+}

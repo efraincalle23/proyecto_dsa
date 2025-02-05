@@ -23,5 +23,24 @@ class Documento extends Model
         'descripcion',
         'observaciones',
         'archivo',
+        'origen',//emitido o recibido
+        'documento_padre_id', // Agregar el nuevo campo al fillable
     ];
+
+    public function historicos()
+    {
+        return $this->hasMany(Historico::class, 'id_documento');
+    }
+    // Relación para el documento padre
+    public function documentoPadre()
+    {
+        return $this->belongsTo(Documento::class, 'documento_padre_id');
+    }
+
+    // Relación para los documentos hijos (subdocumentos o respuestas)
+    public function subDocumentos()
+    {
+        return $this->hasMany(Documento::class, 'documento_padre_id');
+    }
+
 }
