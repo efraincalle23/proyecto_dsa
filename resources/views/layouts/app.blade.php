@@ -129,7 +129,8 @@
                 </div>
                 <div class="avatar ms-3">
                     <a href="{{ route('user.profile', Auth::user()->id) }}">
-                        <img src="{{ asset('storage/' . Auth::user()->foto) }}" alt="Avatar">
+                        <img src="{{ Auth::user()->foto == 'assets/images/default.png' ? asset(Auth::user()->foto) : asset('storage/' . Auth::user()->foto) }}"
+                            alt="Avatar">
                     </a>
                 </div>
             </div>

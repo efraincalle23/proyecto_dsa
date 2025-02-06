@@ -52,11 +52,12 @@
                                             <div class="card-body text-center p-4">
                                                 <!-- Foto -->
                                                 <div class="mb-3">
-                                                    <img src="{{ $user->foto ? asset('storage/' . $user->foto) : asset('path/to/default-avatar.png') }}"
+                                                    <img src="{{ $user->foto && $user->foto !== 'assets/images/default.png' ? asset('storage/' . $user->foto) : asset('assets/images/default.png') }}"
                                                         alt="Foto"
                                                         class="img-fluid rounded-circle border border-light shadow-sm"
                                                         width="70" height="70">
                                                 </div>
+
 
                                                 <!-- Nombre Completo -->
                                                 <h5 class="fw-semibold text-dark">{{ $user->nombre }} {{ $user->apellido }}

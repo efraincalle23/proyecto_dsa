@@ -72,7 +72,7 @@ class UserController extends AuthenticatedController
 
         try {
             // Si no se sube una foto, asignamos una foto por defecto
-            $fotoPath = 'fotos/default.png'; // Ruta de la foto por defecto
+            $fotoPath = 'assets/images/default.png'; // Ruta de la foto por defecto
 
             if ($request->hasFile('foto')) {
                 $fotoPath = $request->file('foto')->store('fotos', 'public'); // Guardamos la foto en el directorio 'storage/app/public/fotos'
@@ -126,7 +126,7 @@ class UserController extends AuthenticatedController
 
             if ($request->hasFile('foto')) {
                 // Si se sube una nueva foto, eliminamos la antigua y subimos la nueva
-                if ($fotoPath && $fotoPath != 'fotos/default.png') {
+                if ($fotoPath && $fotoPath != 'assets/images/default.png') {
                     Storage::disk('public')->delete($fotoPath); // Eliminar foto anterior
                 }
 
@@ -175,7 +175,7 @@ class UserController extends AuthenticatedController
 
             if ($request->hasFile('foto')) {
                 // Si se sube una nueva foto, eliminamos la antigua y subimos la nueva
-                if ($fotoPath && $fotoPath != 'fotos/default.png') {
+                if ($fotoPath && $fotoPath != 'assets/images/default.png') {
                     Storage::disk('public')->delete($fotoPath); // Eliminar foto anterior
                 }
 

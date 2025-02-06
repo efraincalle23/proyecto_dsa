@@ -25,7 +25,7 @@ class DatabaseSeeder extends Seeder
                 'apellido' => 'DSA',
                 'email' => 'admin@DSA.com',
                 'password' => bcrypt('12345678'), // Asegúrate de usar una contraseña fuerte
-                'foto' => 'fotos/default.png',
+                'foto' => 'assets/images/default.png',
             ]);
 
             $admin->assignRole('Administrador');
@@ -35,7 +35,7 @@ class DatabaseSeeder extends Seeder
                 'apellido' => 'DSA',
                 'email' => 'jefe@dsa.com',
                 'password' => bcrypt('12345678'), // Contraseña de prueba
-                'foto' => 'fotos/default.png',
+                'foto' => 'assets/images/default.png',
 
             ]);
 
