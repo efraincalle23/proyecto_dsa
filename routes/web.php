@@ -13,12 +13,22 @@ use App\Http\Controllers\DocumentoRecibidoController;
 use App\Http\Controllers\EntidadController;
 use App\Http\Controllers\DocumentosTodosController;
 use App\Http\Controllers\NotificationController;
-use App\Http\Controllers\UserActivityController;
+use Illuminate\Support\Facades\Auth;
 
 
+// Redirigir la raíz según autenticación
 Route::get('/', function () {
-    return view('auth.login');
+    return Auth::check() ? redirect('/dashboard') : redirect('/login');
 });
+
+
+
+
+
+// Ruta para login
+Route::get('/login', function () {
+    return view('auth.login'); // Ajusta esto según tu vista de login
+})->name('login');
 
 Route::resource('usuarios', UsuarioController::class);
 
