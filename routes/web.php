@@ -13,6 +13,8 @@ use App\Http\Controllers\DocumentoRecibidoController;
 use App\Http\Controllers\EntidadController;
 use App\Http\Controllers\DocumentosTodosController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\UserActivityController;
+
 
 Route::get('/', function () {
     return view('auth.login');
@@ -35,8 +37,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/documentos', [DocumentoController::class, 'index'])->name('documentos.index');
     Route::post('/documentos', [DocumentoController::class, 'store'])->name('documentos.store');
 });
-
-
 
 
 // Rutas tipo recurso para usuarios

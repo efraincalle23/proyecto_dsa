@@ -17,8 +17,11 @@
                 <div class="row">
                     <!-- Avatar y Datos -->
                     <div class="col-md-4 text-center">
-                        <img src="{{ asset('storage/' . $user->foto) }}" class="rounded-circle img-thumbnail mb-3"
-                            alt="Avatar" style="width: 150px; height: 150px;">
+                        <img src="{{ Auth::user()->foto == 'assets/images/default.png' ? asset(Auth::user()->foto) : asset('storage/' . Auth::user()->foto) }}"
+                            class="rounded-circle img-thumbnail mb-3" alt="Avatar" style="width: 150px; height: 150px;">
+
+
+
                         <h5 class="text-primary mb-0 fw-bold">{{ $user->nombre }} {{ $user->apellido }}</h5>
                         <p class="text-muted mt-0 mb-0">{{ $user->rol }}</p>
 
