@@ -22,9 +22,6 @@ Route::get('/', function () {
 });
 
 
-
-
-
 // Ruta para login
 Route::get('/login', function () {
     return view('auth.login'); // Ajusta esto según tu vista de login
