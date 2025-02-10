@@ -15,23 +15,23 @@
                     <div class="card-body">
                         {{-- Filtros de búsqueda --}}
                         <form method="GET" action="{{ route('users.index') }}" class="mb-4">
-                            <div class="row align-items-center">
-                                <div class="col-md-3">
+                            <div class="row g-2">
+                                <div class="col-12 col-sm-6 col-md-3">
                                     <input type="text" name="nombre" class="form-control"
                                         placeholder="Buscar por nombre" value="{{ request('nombre') }}">
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-12 col-sm-6 col-md-3">
                                     <input type="text" name="email" class="form-control" placeholder="Buscar por email"
                                         value="{{ request('email') }}">
                                 </div>
-                                <div class="col-md-3">
+                                <div class="col-12 col-sm-6 col-md-3">
                                     <select class="form-control" name="rol" required>
                                         <option value="Jefe DSA">Jefe DSA</option>
                                         <option value="Administrador">Administrador</option>
                                         <option value="Administrativo">Administrativo</option>
                                     </select>
                                 </div>
-                                <div class="col-md-3 d-flex gap-2">
+                                <div class="col-12 col-sm-6 col-md-3 d-flex gap-2">
                                     <button type="submit" class="btn btn-secondary w-100">
                                         <i class="fas fa-search"></i> Buscar
                                     </button>
@@ -41,7 +41,6 @@
                                 </div>
                             </div>
                         </form>
-
 
                         {{-- Tabla de usuarios --}}
                         <div class="container-fluid">

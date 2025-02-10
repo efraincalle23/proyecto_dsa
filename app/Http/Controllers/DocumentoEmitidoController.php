@@ -10,6 +10,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Models\DocumentoRecibido;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\DB;
 
 
 class DocumentoEmitidoController extends Controller
@@ -38,7 +39,6 @@ class DocumentoEmitidoController extends Controller
         } else {
 
         }
-
 
         // Filtrar por número de oficio
         if ($request->has('numero_oficio') && $request->numero_oficio != '') {
@@ -80,7 +80,7 @@ $query->where('eliminado', false);
         // Pasar los documentos y entidades a la vista
         return view('documentos.documentos_emitidos', compact('users', 'documentos', 'entidades', 'historialDocumento', 'documentosRecibidos', 'numeroOficio'));
     }
-    private function generarNumeroOficio()
+    private function generarNumeroOficioFuncionaba()
     {
         // Obtener el último número de oficio registrado
         $ultimoDocumento = DocumentoEmitido::orderBy('numero_oficio', 'desc')->first();
@@ -96,6 +96,30 @@ $query->where('eliminado', false);
 
         return $nuevoNumero;
     }
+    private function generarNumeroOficio()
+    {
+        // Obtener el número de inicio desde la tabla 'configuraciones'
+        $inicio = DB::table('configuraciones')->where('clave', 'numero_oficio_inicio')->value('valor');
+
+        // Obtener el último número de oficio registrado
+        $ultimoDocumento = DocumentoEmitido::orderBy('numero_oficio', 'desc')->first();
+
+        if (!$ultimoDocumento) {
+            // Si no hay documentos previos, empezamos con el número de inicio
+            return str_pad($inicio, 3, '0', STR_PAD_LEFT);
+        }
+
+        $ultimoNumero = intval($ultimoDocumento->numero_oficio);
+
+        // Si el último número es menor que el número de inicio, empezamos desde ahí
+        if ($ultimoNumero < $inicio) {
+            return str_pad($inicio, 3, '0', STR_PAD_LEFT);
+        }
+
+        // De lo contrario, seguimos con la numeración normal
+        return str_pad($ultimoNumero + 1, 3, '0', STR_PAD_LEFT);
+    }
+
 
     // Mostrar formulario para crear un nuevo documento emitido
     public function create()
@@ -111,196 +135,8 @@ $query->where('eliminado', false);
 
     // Guardar un nuevo documento emitido
 
-    public function storeFUNCIONA(Request $request)
-    {
-        // Validación de los campos
-        $request->validate([
-            'numero_oficio' => 'required|string|max:50|unique:documentos_emitidos,numero_oficio',
-            'asunto' => 'required|string|max:255',
-            'fecha_recibido' => 'required|date',
-            'tipo' => 'required|in:oficio,solicitud,otro',
-            'destino' => 'required|string|max:255',
-            'entidad_id' => 'required|exists:entidades,id',
-            'observaciones' => 'nullable|string|max:500',
-            'Respuesta_A' => 'nullable|exists:documentos_recibidos,id',
-            'formato_documento' => 'nullable|in:virtual,fisico', // Validación para el formato de documento
-        ], [
-            'numero_oficio.required' => 'El campo Número de Oficio es obligatorio.',
-            'numero_oficio.unique' => 'El Número de Oficio ya está registrado.',
-            'asunto.required' => 'El campo Asunto es obligatorio.',
-            'fecha_recibido.required' => 'El campo Fecha de Emisión es obligatorio.',
-            'fecha_recibido.date' => 'La Fecha de Emisión debe ser una fecha válida.',
-            'tipo.required' => 'El campo Tipo es obligatorio.',
-            'tipo.in' => 'El campo Tipo debe ser uno de los siguientes valores: oficio, solicitud, otro.',
-            'destino.required' => 'El campo Destino es obligatorio.',
-            'entidad_id.required' => 'Debe seleccionar una entidad receptora válida.',
-            'entidad_id.exists' => 'La entidad seleccionada no existe.',
-            'observaciones.max' => 'El campo Observaciones no puede superar los 500 caracteres.',
-            'Respuesta_A.exists' => 'El documento de Respuesta seleccionado no existe.',
-            'formato_documento.in' => 'El formato de documento debe ser uno de los siguientes: virtual, fisico.',
-        ]);
 
-        try {
-            // Verificar si el checkbox de formato_documento está marcado
-            $formatoDocumento = $request->has('formato_documento') && $request->formato_documento === 'virtual' ? 'virtual' : 'fisico';
-
-            // Generar el campo `nombre_doc`
-            $fechaRecibido = \Carbon\Carbon::parse($request->fecha_recibido)->format('Y');
-            $entidad = \App\Models\Entidad::find($request->entidad_id);
-            $entidadSuperior = $entidad->entidad_superior_id ? \App\Models\Entidad::find($entidad->entidad_superior_id)->siglas : '';
-
-            $nombreDoc = $request->tipo . '-' . $request->numero_oficio . '-' . $fechaRecibido . ($formatoDocumento === 'virtual' ? '-V' : '') . '-DSA/VRACAD';
-
-            // Crear el documento emitido
-            $documento = DocumentoEmitido::create([
-                'numero_oficio' => $request->numero_oficio,
-                'asunto' => $request->asunto,
-                'fecha_recibido' => $request->fecha_recibido,
-                'tipo' => $request->tipo,
-                'destino' => $request->destino,
-                'entidad_id' => $request->entidad_id,
-                'observaciones' => $request->observaciones,
-                'Respuesta_A' => $request->Respuesta_A,
-                'formato_documento' => $formatoDocumento,
-                'nombre_doc' => $nombreDoc,
-                'eliminado' => false,
-            ]);
-
-            // Registrar en HistorialDocumento
-            try {
-                \App\Models\HistorialDocumento::create([
-                    'id_documento' => $documento->id,
-                    'id_usuario' => $request->user()->id,
-                    'estado_anterior' => 'Creado',
-                    'estado_nuevo' => null,
-                    'fecha_cambio' => now(),
-                    'observaciones' => $request->observaciones ?? 'Documento emitido registrado por ' . request()->user()->nombre . ' ' . request()->user()->apellido,
-                    'origen' => 'emitido',
-                ]);
-            } catch (\Exception $e) {
-                return redirect()->route('documentos_emitidos.index')->with('error', 'Documento guardado, pero ocurrió un error al registrar el historial: ' . $e->getMessage());
-            }
-
-            // Redireccionar con éxito
-            return redirect()->route('documentos_emitidos.index')->with('success', 'Documento emitido creado correctamente.');
-        } catch (\Exception $e) {
-            return redirect()->back()->withErrors([
-                'error' => 'Ocurrió un error al guardar el documento: ' . $e->getMessage(),
-            ])->withInput();
-        }
-    }
-    public function store29(Request $request)
-    {
-        // Validación de los campos
-        $request->validate([
-            'numero_oficio' => [
-                'required',
-                'string',
-                'max:50',
-                // Solo validar unicidad si el tipo no es 'oficio_circular'
-                Rule::unique('documentos_emitidos')->where(function ($query) use ($request) {
-                    return $request->tipo !== 'oficio_circular';
-                }),
-            ],
-            'asunto' => 'required|string|max:255',
-            'fecha_recibido' => 'required|date',
-            'tipo' => 'required|in:oficio,solicitud,otro,oficio_circular',
-            'destino' => 'required|string|max:255',
-            'entidad_id' => 'required|exists:entidades,id',
-            'observaciones' => 'nullable|string|max:500',
-            'Respuesta_A' => 'nullable|exists:documentos_recibidos,id',
-            'formato_documento' => 'nullable|in:virtual,fisico',
-        ], [
-            'numero_oficio.required' => 'El campo Número de Oficio es obligatorio.',
-            'numero_oficio.unique' => 'El Número de Oficio ya está registrado.',
-            'asunto.required' => 'El campo Asunto es obligatorio.',
-            'fecha_recibido.required' => 'El campo Fecha de Emisión es obligatorio.',
-            'fecha_recibido.date' => 'La Fecha de Emisión debe ser una fecha válida.',
-            'tipo.required' => 'El campo Tipo es obligatorio.',
-            'tipo.in' => 'El campo Tipo debe ser uno de los siguientes valores: oficio, solicitud, otro, oficio_circular.',
-            'destino.required' => 'El campo Destino es obligatorio.',
-            'entidad_id.required' => 'Debe seleccionar una entidad receptora válida.',
-            'entidad_id.exists' => 'La entidad seleccionada no existe.',
-            'observaciones.max' => 'El campo Observaciones no puede superar los 500 caracteres.',
-            'Respuesta_A.exists' => 'El documento de Respuesta seleccionado no existe.',
-            'formato_documento.in' => 'El formato de documento debe ser uno de los siguientes: virtual, fisico.',
-        ]);
-
-        try {
-            // Verificar el formato de documento
-            $formatoDocumento = $request->has('formato_documento') && $request->formato_documento === 'virtual' ? 'virtual' : 'fisico';
-
-            // Generar el nombre del documento
-            $fechaRecibido = \Carbon\Carbon::parse($request->fecha_recibido)->format('Y');
-            $nombreDoc = $request->tipo . '-' . $request->numero_oficio . '-' . $fechaRecibido . ($formatoDocumento === 'virtual' ? '-V' : '') . '-DSA/VRACAD';
-
-            if ($request->tipo === 'oficio_circular') {
-                // Obtener todas las entidades con tipo 'facultad'
-                $entidades = \App\Models\Entidad::where('tipo', 'facultad')->get();
-
-                foreach ($entidades as $entidad) {
-                    $documento = DocumentoEmitido::create([
-                        'numero_oficio' => $request->numero_oficio,
-                        'asunto' => $request->asunto,
-                        'fecha_recibido' => $request->fecha_recibido,
-                        'tipo' => $request->tipo,
-                        'destino' => $entidad->nombre,
-                        'entidad_id' => $entidad->id,
-                        'observaciones' => $request->observaciones,
-                        'Respuesta_A' => $request->Respuesta_A,
-                        'formato_documento' => $formatoDocumento,
-                        'nombre_doc' => $nombreDoc,
-                        'eliminado' => false,
-                    ]);
-
-                    // Registrar en HistorialDocumento
-                    \App\Models\HistorialDocumento::create([
-                        'id_documento' => $documento->id,
-                        'id_usuario' => $request->user()->id,
-                        'estado_anterior' => 'Creado',
-                        'estado_nuevo' => null,
-                        'fecha_cambio' => now(),
-                        'observaciones' => $request->observaciones ?? 'Documento emitido registrado por ' . $request->user()->nombre . ' ' . $request->user()->apellido,
-                        'origen' => 'emitido',
-                    ]);
-                }
-            } else {
-                // Crear un único registro
-                $documento = DocumentoEmitido::create([
-                    'numero_oficio' => $request->numero_oficio,
-                    'asunto' => $request->asunto,
-                    'fecha_recibido' => $request->fecha_recibido,
-                    'tipo' => $request->tipo,
-                    'destino' => $request->destino,
-                    'entidad_id' => $request->entidad_id,
-                    'observaciones' => $request->observaciones,
-                    'Respuesta_A' => $request->Respuesta_A,
-                    'formato_documento' => $formatoDocumento,
-                    'nombre_doc' => $nombreDoc,
-                    'eliminado' => false,
-                ]);
-
-                // Registrar en HistorialDocumento
-                \App\Models\HistorialDocumento::create([
-                    'id_documento' => $documento->id,
-                    'id_usuario' => $request->user()->id,
-                    'estado_anterior' => 'Creado',
-                    'estado_nuevo' => null,
-                    'fecha_cambio' => now(),
-                    'observaciones' => $request->observaciones ?? 'Documento emitido registrado por ' . $request->user()->nombre . ' ' . $request->user()->apellido,
-                    'origen' => 'emitido',
-                ]);
-            }
-
-            // Redireccionar con éxito
-            return redirect()->route('documentos_emitidos.index')->with('success', 'Documento emitido creado correctamente.');
-        } catch (\Exception $e) {
-            return redirect()->back()->withErrors([
-                'error' => 'Ocurrió un error al guardar el documento: ' . $e->getMessage(),
-            ])->withInput();
-        }
-    }
-    public function store(Request $request)
+    public function store10_02(Request $request)
     {
         // Validación de los campos
         $request->validate([
@@ -337,6 +173,114 @@ $query->where('eliminado', false);
                 // Convertir los destinos seleccionados en una cadena separada por comas
                 $destinoTexto = implode(", ", $request->destinos);
                 $entidadId = 11; // Asignar la entidad con ID 11
+
+                // Crear un único registro con los destinos seleccionados
+                $documento = DocumentoEmitido::create([
+                    'numero_oficio' => $request->numero_oficio,
+                    'asunto' => $request->asunto,
+                    'fecha_recibido' => $request->fecha_recibido,
+                    'tipo' => $request->tipo,
+                    'destino' => $destinoTexto, // Destinos concatenados
+                    'entidad_id' => $entidadId,
+                    'observaciones' => $request->observaciones,
+                    'Respuesta_A' => $request->Respuesta_A,
+                    'formato_documento' => $formatoDocumento,
+                    'nombre_doc' => $nombreDoc,
+                    'eliminado' => false,
+                ]);
+
+            } else {
+                // Crear un único registro normal
+                $documento = DocumentoEmitido::create([
+                    'numero_oficio' => $request->numero_oficio,
+                    'asunto' => $request->asunto,
+                    'fecha_recibido' => $request->fecha_recibido,
+                    'tipo' => $request->tipo,
+                    'destino' => $request->destino,
+                    'entidad_id' => $request->entidad_id,
+                    'observaciones' => $request->observaciones,
+                    'Respuesta_A' => $request->Respuesta_A,
+                    'formato_documento' => $formatoDocumento,
+                    'nombre_doc' => $nombreDoc,
+                    'eliminado' => false,
+                ]);
+            }
+
+            // Registrar en HistorialDocumento
+            \App\Models\HistorialDocumento::create([
+                'id_documento' => $documento->id,
+                'id_usuario' => $request->user()->id,
+                'estado_anterior' => 'Creado',
+                'estado_nuevo' => null,
+                'fecha_cambio' => now(),
+                'observaciones' => $request->observaciones ?? 'Documento emitido registrado por ' . $request->user()->nombre . ' ' . $request->user()->apellido,
+                'origen' => 'emitido',
+            ]);
+
+            // Redireccionar con éxito
+            return redirect()->route('documentos_emitidos.index')->with('success', 'Documento emitido creado correctamente.');
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors([
+                'error' => 'Ocurrió un error al guardar el documento: ' . $e->getMessage(),
+            ])->withInput();
+        }
+    }
+
+    public function store(Request $request)
+    {
+        // Validación de los campos
+        $request->validate([
+            'numero_oficio' => [
+                'required',
+                'string',
+                'max:50',
+                Rule::unique('documentos_emitidos')->where(function ($query) use ($request) {
+                    return $request->tipo !== 'oficio_circular';
+                }),
+            ],
+            'asunto' => 'required|string|max:255',
+            'fecha_recibido' => 'required|date',
+            'tipo' => 'required|in:oficio,solicitud,otro,oficio_circular',
+            'destinos' => 'required_if:tipo,oficio_circular|array|min:1', // Asegurar que haya al menos un destino seleccionado
+            'destinos.*' => 'string', // Validar cada destino individualmente
+            'entidad_id' => 'nullable|exists:entidades,id', // Se manejará manualmente si es oficio_circular
+            'observaciones' => 'nullable|string|max:500',
+            'Respuesta_A' => 'nullable|exists:documentos_recibidos,id',
+            'formato_documento' => 'nullable|in:virtual,fisico',
+        ], [
+            'destinos.required_if' => 'Debe seleccionar al menos un destino si el tipo es Oficio Circular.',
+        ]);
+
+        try {
+            // Verificar el formato de documento
+            $formatoDocumento = $request->has('formato_documento') && $request->formato_documento === 'virtual' ? 'virtual' : 'fisico';
+
+            // Generar el nombre del documento
+            $fechaRecibido = \Carbon\Carbon::parse($request->fecha_recibido)->format('Y');
+            $nombreDoc = $request->tipo . '-' . $request->numero_oficio . '-' . $fechaRecibido . ($formatoDocumento === 'virtual' ? '-V' : '') . '-DSA/VRACAD';
+
+            if ($request->tipo === 'oficio_circular') {
+                // Convertir los destinos seleccionados en una cadena separada por comas
+                $destinoTexto = implode(", ", $request->destinos);
+
+                if ($destinoTexto == "Decanatos") {
+                    $entidadId = 112;
+                } elseif ($destinoTexto == "Direcciones de Escuelas") {
+                    $entidadId = 113;
+                } elseif ($destinoTexto == "Departamentos Académicos") {
+                    $entidadId = 114;
+                } elseif ($destinoTexto == "Decanatos, Direcciones de Escuelas") {
+                    $entidadId = 115;
+                } elseif ($destinoTexto == "Decanatos, Departamentos Académicos") {
+                    $entidadId = 116;
+                } elseif ($destinoTexto == "Direcciones de Escuelas, Departamentos Académicos") {
+                    $entidadId = 117;
+                } elseif ($destinoTexto == "Decanatos, Direcciones de Escuelas, Departamentos Académicos") {
+                    $entidadId = 118;
+                }
+
+
+                //$entidadId = 11; // Asignar la entidad con ID 11
 
                 // Crear un único registro con los destinos seleccionados
                 $documento = DocumentoEmitido::create([
@@ -633,6 +577,29 @@ $query->where('eliminado', false);
         } catch (\Exception $e) {
             return redirect()->route('documentos_emitidos.index')->withErrors([
                 'error' => 'Error al restaurar el documento: ' . $e->getMessage(),
+            ]);
+        }
+    }
+
+    // Eliminar un documento emitido por completo del sistema
+    public function forceDelete($id)
+    {
+        try {
+            // Buscar el documento por ID
+            $documento = DocumentoEmitido::findOrFail($id);
+
+            // Eliminar todas las entradas relacionadas en la tabla HistorialDocumento
+            //HistorialDocumento::where('id_documento', $documento->id)->delete();
+            HistorialDocumento::where('id_documento', $documento->id)
+                ->where('origen', 'emitido')
+                ->delete();
+            // Eliminar el documento por completo
+            $documento->delete();
+
+            return redirect()->route('documentos_emitidos.index')->with('success', 'Documento emitido eliminado por completo del sistema.');
+        } catch (\Exception $e) {
+            return redirect()->route('documentos_emitidos.index')->withErrors([
+                'error' => 'Error al eliminar el documento por completo: ' . $e->getMessage(),
             ]);
         }
     }

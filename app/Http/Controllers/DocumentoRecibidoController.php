@@ -68,9 +68,9 @@ class DocumentoRecibidoController extends Controller
             // Mostrar todos los documentos, incluidos los eliminados
             // No se aplica filtro de 'eliminado'
         } /*else {
-        // Mostrar solo los documentos activos (no eliminados)
-        $query->where('eliminado', false);
-    }*/
+      // Mostrar solo los documentos activos (no eliminados)
+      $query->where('eliminado', false);
+  }*/
 
         // Obtener los documentos con paginación
         $documentos = $query->paginate(10);  // Ajusta el número de resultados por página
@@ -572,6 +572,29 @@ class DocumentoRecibidoController extends Controller
         } catch (\Exception $e) {
             return redirect()->route('documentos_recibidos.index')->withErrors([
                 'error' => 'Error al restaurar el documento: ' . $e->getMessage(),
+            ]);
+        }
+    }
+
+    // Eliminar un documento recibido por completo del sistema
+    public function forceDelete($id)
+    {
+        try {
+            // Buscar el documento por ID
+            $documento = DocumentoRecibido::findOrFail($id);
+
+            // Eliminar todas las entradas relacionadas en la tabla HistorialDocumento
+            //HistorialDocumento::where('id_documento', $documento->id)->delete();
+            HistorialDocumento::where('id_documento', $documento->id)
+                ->where('origen', 'recibido')
+                ->delete();
+            // Eliminar el documento por completo
+            $documento->delete();
+
+            return redirect()->route('documentos_recibidos.index')->with('success', 'Documento recibido eliminado por completo del sistema.');
+        } catch (\Exception $e) {
+            return redirect()->route('documentos_recibidos.index')->withErrors([
+                'error' => 'Error al eliminar el documento por completo: ' . $e->getMessage(),
             ]);
         }
     }

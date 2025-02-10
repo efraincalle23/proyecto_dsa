@@ -19,6 +19,7 @@
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="{{ asset('css/estilos.css') }}">
+
 </head>
 
 <body>
@@ -43,44 +44,41 @@
         </div>
         <!-- Menú Original con Nuevos Estilos -->
 
-        <a href="/dashboard"><i class="bi bi-house"></i> Dashboard</a>
+        <a href="/dashboard"><i class="bi bi-house-fill"></i> Dashboard</a>
 
-        @if (Auth::user()->rol == 'Administrador')
-            <a href="/documentos"><i class="bi bi-folder"></i> Documentos</a>
-        @endif
 
         <!-- Submenú de Documentos -->
         <div class="sidebar-item">
             <a href="#" class="toggle-submenu" data-target="#submenu-documentos">
-                <i class="bi bi-folder"></i> Documentos
+                <i class="bi bi-folder-fill"></i> Documentos
                 <i class="bi bi-chevron-down float-end ms-5"></i>
             </a>
             <div id="submenu-documentos" class="submenu">
-                <a href="/documentos_recibidos"><i class="bi bi-arrow-down"></i> Recibidos</a>
-                <a href="/documentos_emitidos"><i class="bi bi-arrow-up"></i> emitidos</a>
-                <a href="/documentos-todos"><i class="bi bi-folder"></i> Todos</a>
-
-                @if (Auth::user()->rol == 'Administrador')
-                    <a href="/documentos/recibidos"><i class="bi bi-arrow-down"></i> Recibidos_1</a>
-                    <a href="/documentos/emitidos"><i class="bi bi-arrow-up"></i> Emitidos_1</a>
-                    <a href="/documentos"><i class="bi bi-folder"></i> Todos_1</a>
-                @endif
+                <a href="/documentos_recibidos"><i class="bi bi-file-earmark-arrow-down-fill"></i> Recibidos</a>
+                <a href="/documentos_emitidos"><i class="bi bi-file-earmark-arrow-up-fill"></i> Emitidos</a>
+                <a href="/documentos-todos"><i class="bi bi-folder-fill"></i> Todos</a>
             </div>
         </div>
 
-        <a href="/entidades"><i class="bi bi-shield-lock"></i> Entidades</a>
+        <a href="/entidades"><i class="bi bi-shield-lock-fill"></i> Entidades</a>
 
         @role('Administrador|Jefe DSA')
             @if (Auth::user()->rol == 'Administrador' || Auth::user()->rol == 'Jefe DSA')
-                <a href="/users"><i class="bi bi-people"></i> Usuarios</a>
-                <a href="/entidades"><i class="bi bi-shield-lock"></i> Entidades</a>
+                <a href="/users"><i class="bi bi-people-fill"></i> Usuarios</a>
+                <!-- Submenú de usuarios -->
+                <div class="sidebar-item">
+                    <a href="#" class="toggle-submenu" data-target="#submenu-users">
+                        <i class="bi bi-people-fill"></i>Usuarios
+                        <i class="bi bi-chevron-down float-end ms-5"></i>
+                    </a>
+                    <div id="submenu-users" class="submenu">
+                        <a href="/users""><i class="bi bi-person-fill-gear"></i>Todos</a>
+                        <a href="/users/monitoreo""><i class="bi bi-person-bounding-box"></i> Monitorear</a>
+                    </div>
+                </div>
+                <a href="/historial"><i class="bi bi-clock-history"></i> Históricos</a>
             @endif
-            @if (Auth::user()->rol == 'Administrador')
-                <a href="/historicos"><i class="bi bi-clock-history"></i> Históricos</a>
-                <a href="/roles-permisos-test"><i class="bi bi-shield-lock"></i> Test permisos</a>
-                <a href="#"><i class="bi bi-bell"></i> Notificaciones</a>
-                <a href="#"><i class="bi bi-person-circle"></i> {{ Auth::user()->rol ?? 'Perfil' }}</a>
-            @endif
+
         @endrole
 
         @role('Administrador|Jefe DSA')

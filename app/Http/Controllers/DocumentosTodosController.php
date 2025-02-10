@@ -8,6 +8,7 @@ use App\Models\DocumentoRecibido;
 use App\Models\DocumentoEmitido;
 use App\Models\HistorialDocumento;
 use Carbon\Carbon;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 
 class DocumentosTodosController extends Controller
@@ -145,7 +146,7 @@ class DocumentosTodosController extends Controller
         return view('documentos.documentos_todos', ['documentos' => $documentosPaginated]);
     }
 
-    public function index(Request $request)
+    public function index_08_02(Request $request)
     {
         $numero_oficio = $request->input('numero_oficio');
         $fecha_recibido = $request->input('fecha_recibido');
@@ -240,6 +241,229 @@ class DocumentosTodosController extends Controller
         // Retornar la vista con los documentos y sus historiales
         return view('documentos.documentos_todos', ['documentos' => $documentosPaginated]);
     }
+
+    public function index_ppp(Request $request)
+    {
+        $numero_oficio = $request->input('numero_oficio');
+        $fecha_recibido = $request->input('fecha_recibido');
+        $destino = $request->input('destino');
+        $user = request()->user();
+
+        // Obtener documentos recibidos
+        $documentosRecibidos = DocumentoRecibido::with('entidad')
+            ->select([
+                'id',
+                'numero_oficio',
+                'nombre_doc',
+                'asunto',
+                'fecha_recibido',
+                'entidad_id',
+                'eliminado',
+                'remitente as destino',
+                'formato_documento',
+                'tipo', // Tipo real del documento
+                DB::raw("'recibido' as tipo_documento") // Diferenciar si es recibido o emitido
+            ]);
+
+        // Obtener documentos emitidos
+        $documentosEmitidos = DocumentoEmitido::with('entidad')
+            ->select([
+                'id',
+                'numero_oficio',
+                'nombre_doc',
+                'asunto',
+                'fecha_recibido',
+                'entidad_id',
+                'eliminado',
+                'destino',
+                'formato_documento',
+                'tipo', // Tipo real del documento
+                DB::raw("'emitido' as tipo_documento") // Diferenciar si es recibido o emitido
+            ]);
+
+        // Filtrar por usuario si es administrativo
+        if ($user->rol === 'Administrativo') {
+            $documentosEmitidos->whereHas('historialDocumento', function ($query) use ($user) {
+                $query->where('id_usuario', $user->id)
+                    ->orWhere('destinatario', $user->id);
+            });
+
+            $documentosRecibidos->whereHas('historialDocumento', function ($query) use ($user) {
+                $query->where('id_usuario', $user->id)
+                    ->orWhere('destinatario', $user->id);
+            });
+        }
+
+        // Aplicar filtros
+        if ($numero_oficio) {
+            $documentosEmitidos->where('numero_oficio', 'like', "%{$numero_oficio}%");
+            $documentosRecibidos->where('numero_oficio', 'like', "%{$numero_oficio}%");
+        }
+
+        if ($fecha_recibido) {
+            $documentosEmitidos->whereDate('fecha_recibido', $fecha_recibido);
+            $documentosRecibidos->whereDate('fecha_recibido', $fecha_recibido);
+        }
+
+        if ($destino) {
+            $documentosEmitidos->where('destino', 'like', "%{$destino}%");
+            $documentosRecibidos->where('remitente', 'like', "%{$destino}%");
+        }
+
+        // Obtener los documentos sin historial
+        $documentosRecibidos = $documentosRecibidos->get();
+        $documentosEmitidos = $documentosEmitidos->get();
+
+        // Asignar manualmente los historiales CORRECTOS a cada documento
+        foreach ($documentosRecibidos as $doc) {
+            $doc->historialDocumento = HistorialDocumento::where('id_documento', $doc->id)
+                ->where('origen', 'recibido')  // Solo historiales de documentos recibidos
+                ->orderBy('fecha_cambio', 'desc')
+                ->get();
+        }
+
+        foreach ($documentosEmitidos as $doc) {
+            $doc->historialDocumento = HistorialDocumento::where('id_documento', $doc->id)
+                ->where('origen', 'emitido')  // Solo historiales de documentos emitidos
+                ->orderBy('fecha_cambio', 'desc')
+                ->get();
+        }
+
+        // Unir documentos en una sola colección
+        $documentos = $documentosEmitidos->merge($documentosRecibidos)->sortByDesc('fecha_recibido');
+
+        // Paginar manualmente
+        $perPage = 10;
+        $currentPage = $request->input('page', 1);
+        $paginatedDocumentos = $documentos->slice(($currentPage - 1) * $perPage)->values();
+        $documentosPaginated = new \Illuminate\Pagination\LengthAwarePaginator(
+            $paginatedDocumentos,
+            $documentos->count(),
+            $perPage,
+            $currentPage,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
+        return view('documentos.documentos_todos', ['documentos' => $documentosPaginated]);
+    }
+
+    public function index(Request $request)
+    {
+        $numero_oficio = $request->input('numero_oficio');
+        $fecha_recibido = $request->input('fecha_recibido');
+        $destino = $request->input('destino');
+        $tipo_documento = $request->input('tipo_documento'); // 👈 Nuevo filtro
+        $user = request()->user();
+
+        // Obtener documentos recibidos
+        $documentosRecibidos = DocumentoRecibido::with('entidad')
+            ->select([
+                'id',
+                'numero_oficio',
+                'nombre_doc',
+                'asunto',
+                'fecha_recibido',
+                'entidad_id',
+                'eliminado',
+                'remitente as destino',
+                'formato_documento',
+                'tipo', // Tipo real del documento
+                DB::raw("'recibido' as tipo_documento") // Diferenciar si es recibido o emitido
+            ]);
+
+        // Obtener documentos emitidos
+        $documentosEmitidos = DocumentoEmitido::with('entidad')
+            ->select([
+                'id',
+                'numero_oficio',
+                'nombre_doc',
+                'asunto',
+                'fecha_recibido',
+                'entidad_id',
+                'eliminado',
+                'destino',
+                'formato_documento',
+                'tipo', // Tipo real del documento
+                DB::raw("'emitido' as tipo_documento") // Diferenciar si es recibido o emitido
+            ]);
+
+        // Filtrar por usuario si es administrativo
+        if ($user->rol === 'Administrativo') {
+            $documentosEmitidos->whereHas('historialDocumento', function ($query) use ($user) {
+                $query->where('id_usuario', $user->id)
+                    ->orWhere('destinatario', $user->id);
+            });
+
+            $documentosRecibidos->whereHas('historialDocumento', function ($query) use ($user) {
+                $query->where('id_usuario', $user->id)
+                    ->orWhere('destinatario', $user->id);
+            });
+        }
+
+        // Aplicar filtros
+        if ($numero_oficio) {
+            $documentosEmitidos->where('numero_oficio', 'like', "%{$numero_oficio}%");
+            $documentosRecibidos->where('numero_oficio', 'like', "%{$numero_oficio}%");
+        }
+
+        if ($fecha_recibido) {
+            $documentosEmitidos->whereDate('fecha_recibido', $fecha_recibido);
+            $documentosRecibidos->whereDate('fecha_recibido', $fecha_recibido);
+        }
+
+        if ($destino) {
+            $documentosEmitidos->where('destino', 'like', "%{$destino}%");
+            $documentosRecibidos->where('remitente', 'like', "%{$destino}%");
+        }
+
+        // 📌 **Filtro por tipo_documento**
+        if ($tipo_documento) {
+            if ($tipo_documento === 'emitido') {
+                $documentosRecibidos = collect(); // Dejar vacíos los recibidos
+            } elseif ($tipo_documento === 'recibido') {
+                $documentosEmitidos = collect(); // Dejar vacíos los emitidos
+            }
+        }
+
+        // Solo ejecutar `get()` si la variable sigue siendo una consulta
+        $documentosRecibidos = $documentosRecibidos instanceof \Illuminate\Database\Eloquent\Builder ? $documentosRecibidos->get() : $documentosRecibidos;
+        $documentosEmitidos = $documentosEmitidos instanceof \Illuminate\Database\Eloquent\Builder ? $documentosEmitidos->get() : $documentosEmitidos;
+
+        // Asignar manualmente los historiales correctos
+        foreach ($documentosRecibidos as $doc) {
+            $doc->historialDocumento = HistorialDocumento::where('id_documento', $doc->id)
+                ->where('origen', 'recibido')
+                ->orderBy('fecha_cambio', 'desc')
+                ->get();
+        }
+
+        foreach ($documentosEmitidos as $doc) {
+            $doc->historialDocumento = HistorialDocumento::where('id_documento', $doc->id)
+                ->where('origen', 'emitido')
+                ->orderBy('fecha_cambio', 'desc')
+                ->get();
+        }
+
+        // Combinar los documentos y asegurar que no se pierdan registros
+        $documentos = collect($documentosEmitidos)->merge($documentosRecibidos)->sortByDesc('fecha_recibido')->values();
+
+        // **Solución para la paginación correcta**
+        $perPage = 10;
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $offset = ($currentPage - 1) * $perPage;
+
+        $paginatedDocumentos = new LengthAwarePaginator(
+            $documentos->slice($offset, $perPage)->values(), // Asegurar reindexación
+            $documentos->count(),
+            $perPage,
+            $currentPage,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
+        return view('documentos.documentos_todos', ['documentos' => $paginatedDocumentos]);
+    }
+
+
 
     public function contarDocumentos1(Request $request)
     {
@@ -362,7 +586,6 @@ class DocumentosTodosController extends Controller
             'documentosRecibidos' => $documentosRecibidos,
         ]);
     }
-
 
 
 }

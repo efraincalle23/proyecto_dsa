@@ -13,11 +13,28 @@ class EntidadController extends Controller
         $entidades = Entidad::where('eliminado', operator: false)->get();
         return view('entidades.index', compact('entidades'));
     }
-    public function index()
+    public function index(Request $request)
     {
-        // Obtener todos los registros, tanto eliminados como no eliminados
-        $entidades = Entidad::paginate(10);  // 10 registros por página
+        // Obtener todas las entidades con paginación
+        $query = Entidad::query();
 
+        // Filtrar por nombre
+        if ($request->has('nombre') && $request->nombre != '') {
+            $query->where('nombre', 'like', '%' . $request->nombre . '%');
+        }
+
+        // Filtrar por siglas
+        if ($request->has('siglas') && $request->siglas != '') {
+            $query->where('siglas', 'like', '%' . $request->siglas . '%');
+        }
+
+        // Filtrar por tipo
+        if ($request->has('tipo') && $request->tipo != '') {
+            $query->where('tipo', $request->tipo);
+        }
+
+        // Obtener entidades con paginación de 10 registros por página
+        $entidades = $query->paginate(10);
 
         return view('entidades.index', compact('entidades'));
     }

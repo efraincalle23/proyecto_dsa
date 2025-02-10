@@ -26,7 +26,7 @@
     <div class="container-fluid login-container">
         <div class="card login-form shadow">
             <img src="{{ asset('assets/images/logotipo.png') }}" alt="Logo" class="logo">
-            <h5 class="text-center  mb-3"><strong>DIRECCION DE SERVICIOS ACADÉMICOS</strong></h5>
+            <h5 class="text-center  mb-3"><strong>DIRECCIÓN DE SERVICIOS ACADÉMICOS</strong></h5>
 
             <p class="text-center text-muted">Inicia sesión en tu cuenta</p>
             @if ($errors->any())

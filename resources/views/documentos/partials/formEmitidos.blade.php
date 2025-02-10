@@ -55,8 +55,8 @@
 
 <!-- Entidad -->
 <div class="mb-3" id="entidad-container">
-    <label for="entidad_id">Entidad Receptora</label>
-    <select id="entidad_id" name="entidad_id" class="form-control">
+    <label for="entidad_id">Entidad Receptora</label><br>
+    <select id="entidad_id" name="entidad_id" class="js-example-basic-single">
         @foreach ($entidades as $entidad)
             <option value="{{ $entidad->id }}"
                 {{ old('entidad_id', $documento->entidad_id ?? '') == $entidad->id ? 'selected' : '' }}>
@@ -67,6 +67,7 @@
         <div class="text-danger">{{ $message }}</div>
     @enderror
 </div>
+
 <!-- Asunto -->
 <div class="mb-3">
     <label for="asunto">Asunto</label>

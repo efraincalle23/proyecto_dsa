@@ -137,17 +137,17 @@
         const chart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: @json($diasUltimos7Dias), // Las etiquetas con los últimos 7 días
+                labels: @json($diasUltimos7Dias), // Últimos 7 días
                 datasets: [{
                         label: 'Documentos Emitidos',
-                        data: @json(array_values($documentosEmitidosData)), // Cantidad de documentos emitidos por día
+                        data: @json(array_values($documentosEmitidosData)), // Datos de documentos emitidos
                         borderColor: '#FF6384',
                         backgroundColor: 'rgba(255, 99, 132, 0.2)',
                         fill: true
                     },
                     {
                         label: 'Documentos Recibidos',
-                        data: @json(array_values($documentosRecibidosData)), // Cantidad de documentos recibidos por día
+                        data: @json(array_values($documentosRecibidosData)), // Datos de documentos recibidos
                         borderColor: '#36A2EB',
                         backgroundColor: 'rgba(54, 162, 235, 0.2)',
                         fill: true
@@ -160,9 +160,21 @@
                     legend: {
                         position: 'top',
                     }
+                },
+                scales: {
+                    y: {
+                        ticks: {
+                            callback: function(value) {
+                                return Number.isInteger(value) ? value : '';
+                            },
+                            stepSize: 1 // Asegura que los pasos sean de 1 en 1
+                        },
+                        beginAtZero: true
+                    }
                 }
             }
         });
     </script>
+
     <!--fin-->
 @endsection

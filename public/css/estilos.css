@@ -174,11 +174,29 @@ body {
 .submenu {
     display: none;
     padding-left: 20px;
+
+    /*agregagado*/
+    background-color: rgba(0, 0, 0, 0.05); /* Color más oscuro que el sidebar */
+    border-radius: 5px;
 }
 
 .submenu a {
     padding: 10px 15px;
     font-size: 0.95rem;
+
+    /*agregagado*/
+    color: var(--text-color);
+    transition: background 0.3s;
+    display: block;
+}
+
+.submenu a:hover {
+    background-color: rgba(
+        0,
+        0,
+        0,
+        0.1
+    ); /* Un poco más oscuro al pasar el mouse */
 }
 
 .toggle-submenu .bi-chevron-down {

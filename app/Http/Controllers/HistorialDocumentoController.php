@@ -16,10 +16,42 @@ class HistorialDocumentoController extends Controller
     public function index(Request $request)
     {
 
-        $historicos = HistorialDocumento::all()->paginate(10); // Paginación
+        $query = HistorialDocumento::with([
+            'documento',        // Relación con documentos recibidos
+            'documentoEmitido', // Relación con documentos emitidos
+            'usuario',          // Usuario que hizo el cambio
+            'destinatarioUser'  // Usuario destinatario (si aplica)
+        ]);// Paginación
+
+        // Filtrar por número de oficio
+        if ($request->filled('numero_oficio')) {
+            $query->whereHas('documento', function ($q) use ($request) {
+                $q->where('numero_oficio', 'like', '%' . $request->numero_oficio . '%');
+            })->orWhereHas('documentoEmitido', function ($q) use ($request) {
+                $q->where('numero_oficio', 'like', '%' . $request->numero_oficio . '%');
+            });
+        }
+
+        // Filtrar por fecha de cambio
+        if ($request->filled('fecha_cambio')) {
+            $query->whereDate('fecha_cambio', $request->fecha_cambio);
+        }
+
+        // Filtrar por remitente o destino
+        if ($request->filled('remitente_destino')) {
+            $query->where(function ($q) use ($request) {
+                $q->whereHas('documento', function ($subQuery) use ($request) {
+                    $subQuery->where('remitente', 'like', '%' . $request->remitente_destino . '%');
+                })->orWhereHas('documentoEmitido', function ($subQuery) use ($request) {
+                    $subQuery->where('destino', 'like', '%' . $request->remitente_destino . '%');
+                });
+            });
+        }
+        $historial = $query->paginate(10);
+        $historicos = HistorialDocumento::query()->paginate(10); // Paginación
         $users = User::all(); // Lista de usuarios para el combobox
 
-        return view('documentos.documentos_recibidos', compact('historicos', 'users'));
+        return view('historicos.index', compact('historicos', 'users', 'historial'));
     }
 
     public function asignar(Request $request, $idDocumento)

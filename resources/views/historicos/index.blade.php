@@ -1,146 +1,121 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container">
-        <h1>Históricos</h1>
+    <div class="container-fluid fluid bg-white p-4 rounded shadow ">
 
-        <!-- Mensajes de éxito/error -->
-        @if (session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
-
-        @if (session('error'))
-            <div class="alert alert-danger">{{ session('error') }}</div>
-        @endif
-
-        <!-- Filtros -->
-        <div class="container mb-4">
-            <form method="GET" action="{{ route('historicos.index') }}" class="row g-3">
-                <div class="col-md-4">
-                    <label for="remitente" class="form-label">Remitente</label>
-                    <input type="text" name="remitente" id="remitente" class="form-control"
-                        value="{{ request('remitente') }}" placeholder="Buscar por remitente">
-                </div>
-                <div class="col-md-4">
-                    <label for="numero_oficio" class="form-label">Número de Oficio</label>
-                    <input type="text" name="numero_oficio" id="numero_oficio" class="form-control"
-                        value="{{ request('numero_oficio') }}" placeholder="Buscar por número de oficio">
-                </div>
-                <div class="col-md-4 d-flex align-items-end">
-                    <button type="submit" class="btn btn-primary me-2">Buscar</button>
-                    <a href="{{ route('historicos.index') }}" class="btn btn-secondary">Limpiar</a>
-                </div>
-            </form>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="font-weight-bold text-dark">Historial de Documentos</h3>
+            <!-- Botón para abrir el modal de creación -->
+            <a href="{{ url('/exportar-historial') }}" class="btn btn-success">
+                <i class="bi bi-file-earmark-excel-fill"></i> Exportar a Excel
+            </a>
         </div>
-
-        <!-- Historial -->
-        <ul class="list-group">
-            @foreach ($historicos as $historico)
-                <li class="list-group-item mb-3">
-                    <div class="d-flex justify-content-between">
-                        <!-- Información Principal -->
-                        <div>
-                            <h5><i class="bi bi-clock-history"></i> {{ $historico->fecha_cambio }}</h5>
-                            <p><strong>{{ $historico->documento->id_documento }}{{ $historico->documento->tipo }} N°
-                                    {{ $historico->documento->numero_oficio }}</strong></p>
-                            <p><strong>Remitente:</strong> {{ $historico->documento->remitente }}</p>
-                            <p><strong>Descripcion:</strong> {{ $historico->documento->descripcion }}</p>
-                            <p><strong>Atendido por:</strong> {{ $historico->usuario->nombre }}
-                                {{ $historico->usuario->apellido }} <span
-                                    class="badge bg-secondary">{{ $historico->estado_anterior }}</span>
-                                <strong>derivado a:</strong>
-                                @if ($historico->destinatarioUser)
-                                    {{ $historico->destinatarioUser->nombre }}
-                                    {{ $historico->destinatarioUser->apellido }}
-                                @else
-                                    <span class="text-muted">No asignado</span>
-                                @endif
-                                <span class="badge bg-primary">{{ $historico->estado_nuevo }}</span>
-                            </p>
-
-                            @if ($historico->observaciones)
-                                <p><strong>Observaciones:</strong> {{ $historico->observaciones }}</p>
-                            @endif
-                        </div>
-                        <!-- Botón de Acción -->
-                        <div class="align-self-start">
-                            <!-- Botón para abrir el modal -->
-                            <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal"
-                                data-bs-target="#asignarModal{{ $historico->id }}">Asignar</button>
-                        </div>
-                    </div>
-                </li>
-
-                <!-- Modal -->
-                <div class="modal fade" id="asignarModal{{ $historico->id }}" tabindex="-1"
-                    aria-labelledby="asignarModalLabel{{ $historico->id }}" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <form method="POST" action="{{ route('historicos.asignar2', $historico->id) }}">
-                            @csrf
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="asignarModalLabel{{ $historico->id }}">Asignar Destinatario
-                                    </h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                        aria-label="Cerrar"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <!-- Información del Documento -->
-                                    <div class="mb-3">
-                                        <label class="form-label">Tipo de Documento</label>
-                                        <input type="text" class="form-control"
-                                            value="{{ $historico->documento->tipo }}" disabled>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Número de Oficio</label>
-                                        <input type="text" class="form-control"
-                                            value="{{ $historico->documento->numero_oficio }}" disabled>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Remitente</label>
-                                        <input type="text" class="form-control"
-                                            value="{{ $historico->documento->remitente }}" disabled>
-                                    </div>
-                                    <!-- Campos para Asignación -->
-                                    <div class="mb-3">
-                                        <label class="form-label">Destinatario</label>
-                                        <select name="destinatario" class="form-select" required>
-                                            <option value="">Seleccione un destinatario</option>
-                                            @foreach ($users as $user)
-                                                <option value="{{ $user->id }}">{{ $user->nombre }}
-                                                    {{ $user->apellido }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Estado Nuevo</label>
-                                        <select name="estado_nuevo" class="form-select" required>
-                                            <option value="por firma">Por firma</option>
-                                            <option value="observado">Observado</option>
-                                            <option value="en proceso">En proceso</option>
-                                            <option value="otro">Otro</option>
-                                        </select>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Observaciones</label>
-                                        <textarea name="observaciones" class="form-control" rows="3"></textarea>
-                                    </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                                    <button type="submit" class="btn btn-primary">Asignar</button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
+        <form method="GET" action="{{ route('historial.index') }}" class="mb-4">
+            <div class="row">
+                <div class="col-md-3">
+                    <input type="text" name="numero_oficio" class="form-control"
+                        placeholder="Buscar por número de oficio" value="{{ request('numero_oficio') }}">
                 </div>
-            @endforeach
-        </ul>
+                <div class="col-md-3">
+                    <input type="date" name="fecha_cambio" class="form-control" placeholder="Buscar por fecha de cambio"
+                        value="{{ request('fecha_cambio') }}">
+                </div>
+                <div class="col-md-4">
+                    <input type="text" name="remitente_destino" class="form-control"
+                        placeholder="Buscar por remitente o destino" value="{{ request('remitente_destino') }}">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="submit" class="btn btn-secondary me-2">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                    <a href="{{ route('historial.index') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-sync-alt"></i> Limpiar
+                    </a>
+                </div>
+            </div>
+        </form>
 
+        <div class="table-responsive"> <!-- Agrega este contenedor -->
+
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Nombre Documento</th>
+                        <th>Remitente/Destino</th>
+                        <th>Usuario</th>
+                        <th>Estado Anterior</th>
+                        <th>Estado Nuevo</th>
+                        <th>Fecha Cambio</th>
+                        <th>Observaciones</th>
+                        <th>Origen</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if ($historial->isNotEmpty())
+                        @foreach ($historial as $item)
+                            <tr>
+                                <td>{{ $loop->iteration }}</td>
+                                <td>
+                                    {{ ucfirst($item->documento?->nombre_doc ?? ($item->documentoEmitido?->nombre_doc ?? 'N/A')) }}
+                                </td>
+                                <td>
+                                    @if ($item->origen === 'emitido')
+                                        {{ $item->documentoEmitido?->destino ?? 'N/A' }}
+                                    @else
+                                        {{ $item->documento?->remitente ?? 'N/A' }}
+                                    @endif
+                                </td>
+
+                                <td>
+                                    {{ $item->usuario?->nombre ?? 'N/A' }} {{ $item->usuario?->apellido ?? '' }}
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-outline-primary"
+                                        style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;">
+                                        {{ $item->estado_anterior }}
+                                    </button>
+
+                                </td>
+                                <td>{{ $item->estado_nuevo }}</td>
+                                <td>{{ $item->fecha_cambio }}</td>
+                                <td>{{ $item->observaciones }}</td>
+                                <td>
+                                    @if ($item->origen === 'emitido')
+                                        <button type="button" class="btn btn-outline-success">{{ $item->origen }}</button>
+                                    @else
+                                        <button type="button" class="btn btn-outline-danger">{{ $item->origen }}</button>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                    @else
+                        <tr>
+                            <td colspan="8" class="text-center">No hay documentos registrados.</td>
+                        </tr>
+                    @endif
+                </tbody>
+            </table>
+        </div>
         <!-- Paginación -->
         <div class="d-flex justify-content-center mt-4">
-            {{ $historicos->links('vendor.pagination.bootstrap-5') }}
+            {{ $historial->links('vendor.pagination.bootstrap-5') }}
         </div>
+        <style>
+            .card {
+                border-width: 2px;
+                border-radius: 8px;
+            }
+
+            .card-header {
+                font-size: 1rem;
+                font-weight: bold;
+            }
+
+            .card-footer {
+                font-size: 0.85rem;
+                background-color: #f8f9fa;
+            }
+        </style>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 @endsection

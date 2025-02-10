@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container mt-4">
+    <div class="container-fluid fluid bg-white p-4 rounded shadow">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h4 class="fw-bold">📩 Notificaciones</h4>
             <form action="{{ route('notifications.markAllAsRead') }}" method="POST">

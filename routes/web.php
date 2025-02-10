@@ -14,8 +14,13 @@ use App\Http\Controllers\EntidadController;
 use App\Http\Controllers\DocumentosTodosController;
 use App\Http\Controllers\NotificationController;
 use Illuminate\Support\Facades\Auth;
-
-
+use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Request;
+use App\Exports\DocumentosExport;
+use App\Exports\DocumentosRecibidosExport;
+use App\Exports\DocumentosEmitidosExport;
+use App\Exports\HistorialDocumentosExport;
+use App\Http\Controllers\ConfiguracionController;
 // Redirigir la raíz según autenticación
 Route::get('/', function () {
     return Auth::check() ? redirect('/dashboard') : redirect('/login');
@@ -27,23 +32,54 @@ Route::get('/login', function () {
     return view('auth.login'); // Ajusta esto según tu vista de login
 })->name('login');
 
-Route::resource('usuarios', UsuarioController::class);
-
-Route::resource('documentos', DocumentoController::class)->only([
-    'index',
-    'create',
-    'store',
-    'edit',
-    'update',
-    'destroy'
-]);
 /*Route::get('documento', function () {
     return view('documentos/documentos');
 });*/
-Route::middleware(['auth'])->group(function () {
-    Route::get('/documentos', [DocumentoController::class, 'index'])->name('documentos.index');
-    Route::post('/documentos', [DocumentoController::class, 'store'])->name('documentos.store');
-});
+
+
+//para controlar usuarios:
+Route::get('/users/monitoreo', function () {
+    $usuarios = DB::table('user_sessions')
+        ->join('users', 'user_sessions.user_id', '=', 'users.id')
+        ->select('users.id', 'users.nombre', 'users.apellido', 'user_sessions.ip_address', 'user_sessions.last_activity', 'user_sessions.is_active')
+        ->get();
+
+    return view('users.usuarios_monitoreo', compact('usuarios'));
+})->middleware('auth');
+
+
+Route::post('/users/desconectar/{id}', function ($id) {
+    // Desactivar al usuario en la base de datos
+    DB::table('user_sessions')->where('user_id', $id)->update(['is_active' => false]);
+
+    // Eliminar la sesión del usuario
+    DB::table('sessions')->where('user_id', $id)->delete();
+
+    return redirect()->back()->with('success', 'Usuario desconectado');
+})->name('users.desconectar');
+
+//para exportar documentos todos
+Route::get('/exportar-documentos', function () {
+    return (new DocumentosExport())->export();
+})->middleware('auth');
+
+Route::get('/exportar-recibidos', function () {
+    return (new DocumentosRecibidosExport())->export();
+})->middleware('auth');
+
+Route::get('/exportar-emitidos', function () {
+    return (new DocumentosEmitidosExport())->export();
+})->middleware('auth');
+
+Route::get('/exportar-historial', function () {
+    return (new HistorialDocumentosExport())->export();
+})->middleware('auth');
+
+
+//definir nuevo inicio
+
+Route::post('/configuracion/numero-oficio-inicio', [ConfiguracionController::class, 'actualizarNumeroOficioInicio'])->name('configuracion.actualizarNumeroOficioInicio');
+
 
 
 // Rutas tipo recurso para usuarios
@@ -58,7 +94,6 @@ Route::put('/users/{user}/updateFoto', [UserController::class, 'updateFoto'])->n
 Route::post('users/check-email', [UserController::class, 'checkEmail'])->name('users.checkEmail');
 
 Route::get('/insertar-roles', [RolController::class, 'insertarRoles']);
-Route::get('/usuarios/check-email', [UsuarioController::class, 'checkEmail'])->name('usuarios.checkEmail');
 
 
 //login
@@ -73,15 +108,6 @@ Route::middleware(['auth'])->group(function () {
     })->name('dashboard');
 });
 
-/*Route::get('documento', function () {
-    return view('documentos/documentos');
-});*/
-
-//Route::post('/historicos/{id}/asignar', [HistoricoController::class, 'asignar'])->name('historicos.asignar');
-Route::get('/historicos', [HistoricoController::class, 'index'])->name('historicos.index');
-
-Route::post('/historicos/asignar/{id_documento}', [HistoricoController::class, 'asignar'])->name(name: 'historicos.asignar');
-Route::post('/historicos/asignar2/{id_documento}', [HistoricoController::class, 'asignar2'])->name(name: 'historicos.asignar2');
 
 
 use App\Http\Controllers\RolesPermisosTestController;
@@ -93,24 +119,6 @@ Route::get('auth/google/callback', [SocialController::class, 'handleGoogleCallba
 
 Route::get('/perfil/{id}', [UserController::class, 'show'])->name('user.profile')->middleware('auth');
 Route::put('/users/{id}/password', [UserController::class, 'updatePassword'])->name('users.updatePassword')->middleware('auth');
-
-
-
-Route::get('/documentos/recibidos', [DocumentoController::class, 'recibidos'])->name('documentos.recibidos');
-Route::get('/documentos/emitidos', action: [DocumentoController::class, 'emitidos'])->name('documentos.emitidos');
-
-Route::post('/documentos/recibido', [DocumentoController::class, 'storeRecibido'])->name('documentos.storeRecibido');
-Route::post('/documentos/emitido', [DocumentoController::class, 'storeEmitido'])->name('documentos.storeEmitido');
-
-Route::post('/documentos/respuesta', [DocumentoController::class, 'storeRespuesta'])->name('documentos.storeRespuesta');
-
-Route::get('/documentos/emitidoNro', action: [DocumentoController::class, 'emitidoNro'])->name('documentos.emitidoNro');
-Route::get('/documentos/recibidoNro', action: [DocumentoController::class, 'recibidoNro'])->name('documentos.recibidos');
-
-
-
-
-Route::get('/documentos', [DocumentoController::class, 'index'])->name('documentos.index');
 
 
 
@@ -147,4 +155,11 @@ Route::get('/notificaciones/{notification}', [NotificationController::class, 'sh
 Route::post('/notificaciones/marcar-todas', [NotificationController::class, 'markAllAsRead'])->name('notifications.markAllAsRead')->middleware('auth');
 
 Route::get('/dashboard', [DocumentosTodosController::class, 'contarDocumentos'])->middleware('auth');
+;
+
+Route::get('/historial', [HistorialDocumentoController::class, 'index'])->name('historial.index')->middleware('auth');
+
+Route::delete('/documentos-emitidos/{id}/force-delete', [DocumentoEmitidoController::class, 'forceDelete'])->name('documentos_emitidos.forceDelete')->middleware('auth');
+
+Route::delete('/documentos-recibidos/{id}/force-delete', [DocumentoRecibidoController::class, 'forceDelete'])->name('documentos_recibidos.forceDelete')->middleware('auth');
 ;

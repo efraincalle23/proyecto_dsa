@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container">
+    <div class="container-fluid fluid bg-white p-4 rounded shadowssss">
         <h4>{{ $notification->data['message'] }}</h4>
 
         <div class="card">

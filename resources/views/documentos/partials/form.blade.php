@@ -76,7 +76,7 @@
 </div>
 <div class="mb-3">
     <label for="entidad_id" class="form-label">Entidad Remitente</label>
-    <select name="entidad_id" id="entidad_id" class="form-select">
+    <select name="entidad_id" id="entidad_id" class="js-example-basic-single">
         <option value="">Seleccione una entidad</option>
         @foreach ($entidades as $entidad)
             <option value="{{ $entidad->id }}"
