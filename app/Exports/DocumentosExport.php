@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class DocumentosExport
 {
-    public function export()
+    public function export($user)
     {
         $filePath = storage_path('app/public/documentos.xlsx');
         $spreadsheet = new Spreadsheet();
@@ -58,6 +58,28 @@ class DocumentosExport
                 'entidades.nombre as entidad_nombre',
                 DB::raw("'Recibido' as tipo_documento")
             );
+
+        if ($user->rol === 'Administrativo') {
+            $emitidos->whereExists(function ($query) use ($user) {
+                $query->select(DB::raw(1))
+                    ->from('historial_documentos')
+                    ->whereRaw('historial_documentos.id_documento = documentos_emitidos.id')
+                    ->where(function ($q) use ($user) {
+                        $q->where('historial_documentos.id_usuario', $user->id)
+                            ->orWhere('historial_documentos.destinatario', $user->id);
+                    });
+            });
+
+            $recibidos->whereExists(function ($query) use ($user) {
+                $query->select(DB::raw(1))
+                    ->from('historial_documentos')
+                    ->whereRaw('historial_documentos.id_documento = documentos_recibidos.id')
+                    ->where(function ($q) use ($user) {
+                        $q->where('historial_documentos.id_usuario', $user->id)
+                            ->orWhere('historial_documentos.destinatario', $user->id);
+                    });
+            });
+        }
         $documentos = $emitidos->union($recibidos)->get();
 
         // ✅ Insertar datos en el archivo Excel

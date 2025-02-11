@@ -60,16 +60,20 @@ Route::post('/users/desconectar/{id}', function ($id) {
 
 //para exportar documentos todos
 Route::get('/exportar-documentos', function () {
-    return (new DocumentosExport())->export();
+    $user = Auth::user();
+    return (new DocumentosExport())->export($user);
 })->middleware('auth');
 
 Route::get('/exportar-recibidos', function () {
-    return (new DocumentosRecibidosExport())->export();
+    $user = Auth::user();
+    return (new DocumentosRecibidosExport())->export($user);
 })->middleware('auth');
 
 Route::get('/exportar-emitidos', function () {
-    return (new DocumentosEmitidosExport())->export();
+    $user = Auth::user();
+    return (new DocumentosEmitidosExport())->export($user);
 })->middleware('auth');
+
 
 Route::get('/exportar-historial', function () {
     return (new HistorialDocumentosExport())->export();

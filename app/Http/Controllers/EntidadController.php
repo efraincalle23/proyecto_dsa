@@ -34,10 +34,15 @@ class EntidadController extends Controller
         }
 
         // Obtener entidades con paginación de 10 registros por página
-        $entidades = $query->paginate(10);
+        // Obtener entidades con paginación para la tabla
+        $entidadesPaginadas = $query->paginate(10);
 
-        return view('entidades.index', compact('entidades'));
+        // Obtener todas las entidades sin paginación para el select
+        $entidades = Entidad::all();
+
+        return view('entidades.index', compact('entidadesPaginadas', 'entidades'));
     }
+
 
     public function create()
     {

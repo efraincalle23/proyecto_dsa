@@ -93,8 +93,8 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if ($entidades->isNotEmpty())
-                        @foreach ($entidades as $entidad)
+                    @if ($entidadesPaginadas->isNotEmpty())
+                        @foreach ($entidadesPaginadas as $entidad)
                             <tr>
                                 <td>{{ $entidad->id }}</td>
                                 <td>{{ $entidad->nombre }}</td>
@@ -194,7 +194,7 @@
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="entidad_superior_id">Entidad Superior</label>
-                                                    <select class="form-control" id="entidad_superior_id"
+                                                    <select class="js-example-basic-single" id="entidad_superior_id"
                                                         name="entidad_superior_id">
                                                         <option value="">Ninguna</option>
                                                         @foreach ($entidades as $superior)
@@ -205,6 +205,7 @@
                                                         @endforeach
                                                     </select>
                                                 </div>
+
                                             </div>
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary"
@@ -242,11 +243,11 @@
             </style>
             <!-- Paginación -->
             <div class="d-flex justify-content-center mt-4">
-                {{ $entidades->links('vendor.pagination.bootstrap-5') }}
+                {{ $entidadesPaginadas->links('vendor.pagination.bootstrap-5') }}
             </div>
         </div>
         <!-- Modal de Confirmación de Eliminación -->
-        @foreach ($entidades as $entidad)
+        @foreach ($entidadesPaginadas as $entidad)
             <div class="modal fade" id="deleteModal{{ $entidad->id }}" tabindex="-1"
                 aria-labelledby="deleteModalLabel{{ $entidad->id }}" aria-hidden="true">
                 <div class="modal-dialog">
@@ -317,7 +318,7 @@
                         </div>
                         <div class="form-group">
                             <label for="entidad_superior_id">Entidad Superior</label>
-                            <select class="form-control" id="entidad_superior_id" name="entidad_superior_id">
+                            <select class="js-example-basic-single" id="entidad_superior_id" name="entidad_superior_id">
                                 <option value="">Ninguna</option>
                                 @foreach ($entidades as $superior)
                                     <option value="{{ $superior->id }}">{{ $superior->nombre }}</option>
@@ -334,7 +335,54 @@
         </div>
     </div>
     <!-- Fin Modal Crear -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <!-- Select2 CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+    <!-- Select2 JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
+    <script>
+        $(document).ready(function() {
+            // Función para inicializar Select2 con opciones comunes
+            function initSelect2($select, extraOptions = {}) {
+                $select.select2($.extend({
+                    width: '100%', // Ocupa el 100% del contenedor
+                    placeholder: 'Seleccione una opción', // Texto de placeholder (opcional)
+                    allowClear: true, // Permite borrar la selección
+                    language: "es" // Configura el idioma a español
+                }, extraOptions));
+            }
+
+            // Inicializar todos los select con la clase .js-example-basic-single
+            $('.js-example-basic-single').each(function() {
+                var $select = $(this);
+                // Si el select está dentro de un modal, establecemos dropdownParent
+                var $modal = $select.closest('.modal');
+                if ($modal.length) {
+                    initSelect2($select, {
+                        dropdownParent: $modal
+                    });
+                } else {
+                    initSelect2($select);
+                }
+            });
+
+            // Si los modales se abren dinámicamente, asegúrate de re-inicializar los select dentro del modal al mostrarse.
+            $('.modal').on('shown.bs.modal', function() {
+                $(this).find('.js-example-basic-single').each(function() {
+                    var $select = $(this);
+                    // Si ya está inicializado, no se vuelve a inicializar.
+                    if (!$select.data('select2')) {
+                        initSelect2($select, {
+                            dropdownParent: $(this).closest('.modal')
+                        });
+                    }
+                });
+            });
+        });
+    </script>
 
 
     <!---Alert--->
@@ -385,6 +433,9 @@
         </script>
     @endif
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
+
 
 @endsection
