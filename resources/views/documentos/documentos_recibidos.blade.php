@@ -67,6 +67,7 @@
                         <th>#</th>
                         <th>Número de Oficio</th>
                         <th>Remitente</th>
+                        <th>Entidad</th>
                         <th>Asunto</th>
                         <th>Recibido</th>
                         <th>Atendido</th>
@@ -102,6 +103,7 @@
                                     </button>
                                 @endif
                             </td>
+                            <td>{{ $documento->Entidad->siglas }}</td>
                             <td>{{ $documento->fecha_recibido }}</td>
                             <td>
                                 @php

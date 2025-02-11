@@ -264,19 +264,19 @@ $query->where('eliminado', false);
                 $destinoTexto = implode(", ", $request->destinos);
 
                 if ($destinoTexto == "Decanatos") {
-                    $entidadId = 112;
+                    $entidadId = 857;
                 } elseif ($destinoTexto == "Direcciones de Escuelas") {
-                    $entidadId = 113;
+                    $entidadId = 858;
                 } elseif ($destinoTexto == "Departamentos Académicos") {
-                    $entidadId = 114;
+                    $entidadId = 859;
                 } elseif ($destinoTexto == "Decanatos, Direcciones de Escuelas") {
-                    $entidadId = 115;
+                    $entidadId = 860;
                 } elseif ($destinoTexto == "Decanatos, Departamentos Académicos") {
-                    $entidadId = 116;
+                    $entidadId = 861;
                 } elseif ($destinoTexto == "Direcciones de Escuelas, Departamentos Académicos") {
-                    $entidadId = 117;
+                    $entidadId = 862;
                 } elseif ($destinoTexto == "Decanatos, Direcciones de Escuelas, Departamentos Académicos") {
-                    $entidadId = 118;
+                    $entidadId = 863;
                 }
 
 
@@ -335,7 +335,7 @@ $query->where('eliminado', false);
     }
 
 
-    public function storeRespuesta(Request $request)
+    public function storeRespuesta1120(Request $request)
     {
         // Validación de los campos
         $request->validate([
@@ -431,6 +431,114 @@ $query->where('eliminado', false);
         }
     }
 
+    public function storeRespuesta(Request $request)
+    {
+        // Validación de los campos
+        $request->validate([
+            'numero_oficio' => 'required|string|max:50|unique:documentos_emitidos,numero_oficio',
+            'asunto' => 'required|string|max:255',
+            'fecha_recibido' => 'required|date',
+            'tipo' => 'required|in:oficio,solicitud,oficio_circular,otro',
+            'destinos' => 'required_if:tipo,oficio_circular|array|min:1', // Asegurar que haya al menos un destino seleccionado
+            'destinos.*' => 'string', // Validar cada destino individualmente
+
+
+            //'destinos' => 'required_if:tipo,oficio_circular|array',
+            //'destino' => 'required_unless:tipo,oficio_circular|string|max:255',
+            'entidad_id' => 'required_unless:tipo,oficio_circular|exists:entidades,id',
+            'observaciones' => 'nullable|string|max:500',
+            'respuesta_a' => 'nullable|exists:documentos_recibidos,id',
+            'formato_documento' => 'nullable|in:virtual,fisico',
+        ], [
+            'tipo.in' => 'El campo Tipo debe ser uno de los siguientes valores: oficio, solicitud, oficio_circular, otro.',
+            'destinos.required_if' => 'Debe seleccionar al menos un destino para los oficios circulares.',
+        ]);
+
+        try {
+            // Determinar el formato del documento
+            $formatoDocumento = $request->formato_documento === 'virtual' ? 'virtual' : 'fisico';
+
+            // Generar el campo nombre_doc
+            $fechaRecibido = \Carbon\Carbon::parse($request->fecha_recibido)->format('Y');
+            $nombreTipo = ($request->tipo === 'oficio_circular') ? 'Oficio_circular' : strtoupper($request->tipo);
+            $nombreDoc = $nombreTipo . '-' . $request->numero_oficio . '-' . $fechaRecibido;
+            $nombreDoc .= ($formatoDocumento === 'virtual' ? '-V' : '') . '-DSA/VRACAD';
+
+            // Manejo especial para oficio_circular
+            if ($request->tipo === 'oficio_circular') {
+                $destinoTexto = implode(", ", $request->destinos);
+
+                $entidadId = match ($destinoTexto) {
+                    "Decanatos" => 857,
+                    "Direcciones de Escuelas" => 858,
+                    "Departamentos Académicos" => 859,
+                    "Decanatos, Direcciones de Escuelas" => 860,
+                    "Decanatos, Departamentos Académicos" => 861,
+                    "Direcciones de Escuelas, Departamentos Académicos" => 862,
+                    "Decanatos, Direcciones de Escuelas, Departamentos Académicos" => 863,
+                    default => null,
+                };
+
+                $destino = $destinoTexto;
+            } else {
+                $entidadId = $request->entidad_id;
+                $destino = $request->destino;
+            }
+
+            // Crear el documento emitido
+            $documento = DocumentoEmitido::create([
+                'numero_oficio' => $request->numero_oficio,
+                'asunto' => $request->asunto,
+                'fecha_recibido' => $request->fecha_recibido,
+                'tipo' => $request->tipo,
+                'destino' => $destino,
+                'entidad_id' => $entidadId,
+                'observaciones' => $request->observaciones,
+                'respuesta_a' => $request->respuesta_a,
+                'formato_documento' => $formatoDocumento,
+                'nombre_doc' => $nombreDoc,
+                'eliminado' => false,
+            ]);
+
+            // Registrar en HistorialDocumento (dos veces)
+            $usuario = $request->user();
+            $observacionGeneral = $usuario->nombre . ' ' . $usuario->apellido . ' ha generado el ' . $nombreDoc;
+
+            try {
+                // Registro como documento emitido
+                \App\Models\HistorialDocumento::create([
+                    'id_documento' => $documento->id,
+                    'id_usuario' => $usuario->id,
+                    'estado_anterior' => 'Creado',
+                    'estado_nuevo' => null,
+                    'fecha_cambio' => now(),
+                    'observaciones' => 'Documento emitido registrado como respuesta.',
+                    'origen' => 'emitido',
+                ]);
+
+                // Registro como documento recibido (respuesta)
+                if ($request->respuesta_a) {
+                    \App\Models\HistorialDocumento::create([
+                        'id_documento' => $request->respuesta_a,
+                        'id_usuario' => $usuario->id,
+                        'estado_anterior' => 'Creado',
+                        'estado_nuevo' => null,
+                        'fecha_cambio' => now(),
+                        'observaciones' => $observacionGeneral . ' como respuesta a este documento.',
+                        'origen' => 'recibido',
+                    ]);
+                }
+            } catch (\Exception $e) {
+                return redirect()->route('documentos_recibidos.index')->with('error', 'Documento guardado, pero ocurrió un error al registrar el historial: ' . $e->getMessage());
+            }
+
+            return redirect()->route('documentos_recibidos.index')->with('success', 'Documento emitido creado correctamente.');
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors([
+                'error' => 'Ocurrió un error al guardar el documento: ' . $e->getMessage(),
+            ])->withInput();
+        }
+    }
 
 
     // Mostrar formulario para editar un documento emitido
@@ -442,7 +550,7 @@ $query->where('eliminado', false);
     }
 
     // Actualizar un documento emitido
-    public function update(Request $request, $id)
+    public function update11(Request $request, $id)
     {
         $documento = DocumentoEmitido::findOrFail($id);
         $origen = 'emitido'; // Origen cambiado a "emitido"
@@ -521,6 +629,107 @@ $query->where('eliminado', false);
             ]);
         }
     }
+
+    public function update(Request $request, $id)
+    {
+        $documento = DocumentoEmitido::findOrFail($id);
+        $origen = 'emitido';
+
+        // Validación de los campos
+        $validatedData = $request->validate([
+            'numero_oficio' => 'required|string|max:50',
+            'asunto' => 'required|string|max:255',
+            'fecha_recibido' => 'required|date',
+            'tipo' => 'required|in:oficio,solicitud,otro,oficio_circular',
+            'destinos' => 'required_if:tipo,oficio_circular|array|min:1',
+            'destinos.*' => 'string',
+            'destino' => 'nullable|string|max:100',
+            'entidad_id' => 'nullable|exists:entidades,id',
+            'observaciones' => 'nullable|string|max:200',
+            'Respuesta_A' => 'nullable|string|max:255',
+            'eliminado' => 'nullable|boolean',
+            'formato_documento' => 'nullable|in:virtual,fisico',
+        ], [
+            'destinos.required_if' => 'Debe seleccionar al menos un destino si el tipo es Oficio Circular.',
+        ]);
+        // Validar unicidad de combinación (número de oficio y entidad_id)
+        $existingDocumento = DocumentoEmitido::where('numero_oficio', $request->numero_oficio)
+            ->where('entidad_id', $request->entidad_id)
+            ->where('id', '!=', $id)
+            ->first();
+
+        if ($existingDocumento) {
+            return redirect()->route('documentos_emitidos.index')->withErrors([
+                'error' => 'Ya existe un documento con el mismo número de oficio para la entidad seleccionada.',
+            ]);
+        }
+
+        try {
+            $formatoDocumento = $request->has('formato_documento') && $request->formato_documento === 'virtual' ? 'virtual' : 'fisico';
+            $fechaRecibido = \Carbon\Carbon::parse($request->fecha_recibido)->format('Y');
+            $nombreDoc = $request->tipo . '-' . $request->numero_oficio . '-' . $fechaRecibido . ($formatoDocumento === 'virtual' ? '-V' : '') . '-DSA/VRACAD';
+
+            if ($request->tipo === 'oficio_circular') {
+                $destinoTexto = implode(", ", $request->destinos);
+
+                $entidadId = match ($destinoTexto) {
+                    "Decanatos" => 857,
+                    "Direcciones de Escuelas" => 858,
+                    "Departamentos Académicos" => 859,
+                    "Decanatos, Direcciones de Escuelas" => 860,
+                    "Decanatos, Departamentos Académicos" => 861,
+                    "Direcciones de Escuelas, Departamentos Académicos" => 862,
+                    "Decanatos, Direcciones de Escuelas, Departamentos Académicos" => 863,
+                    default => null,
+                };
+
+                $documento->update([
+                    'numero_oficio' => $request->numero_oficio,
+                    'asunto' => $request->asunto,
+                    'fecha_recibido' => $request->fecha_recibido,
+                    'tipo' => $request->tipo,
+                    'destino' => $destinoTexto,
+                    'entidad_id' => $entidadId,
+                    'observaciones' => $request->observaciones,
+                    'Respuesta_A' => $request->Respuesta_A,
+                    'formato_documento' => $formatoDocumento,
+                    'nombre_doc' => $nombreDoc,
+                    'eliminado' => $request->eliminado ?? false,
+                ]);
+            } else {
+                $documento->update([
+                    'numero_oficio' => $request->numero_oficio,
+                    'asunto' => $request->asunto,
+                    'fecha_recibido' => $request->fecha_recibido,
+                    'tipo' => $request->tipo,
+                    'destino' => $request->destino,
+                    'entidad_id' => $request->entidad_id,
+                    'observaciones' => $request->observaciones,
+                    'Respuesta_A' => $request->Respuesta_A,
+                    'formato_documento' => $formatoDocumento,
+                    'nombre_doc' => $nombreDoc,
+                    'eliminado' => $request->eliminado ?? false,
+                ]);
+            }
+
+            \App\Models\HistorialDocumento::create([
+                'id_documento' => $documento->id,
+                'id_usuario' => request()->user()->id,
+                'estado_anterior' => 'Actualizado',
+                'estado_nuevo' => null,
+                'fecha_cambio' => now(),
+                'observaciones' => $request->observaciones ?? 'Documento emitido actualizado por ' . request()->user()->nombre . ' ' . request()->user()->apellido,
+                'origen' => $origen,
+            ]);
+
+            return redirect()->route('documentos_emitidos.index')->with('success', 'Documento emitido actualizado correctamente.');
+        } catch (\Exception $e) {
+            return redirect()->route('documentos_emitidos.index')->withErrors([
+                'error' => 'Error al actualizar el documento: ' . $e->getMessage(),
+            ]);
+        }
+    }
+
 
     // Eliminar un documento emitido (eliminación lógica)
     public function destroy($id)

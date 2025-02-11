@@ -9,8 +9,7 @@ class EntidadesSeeder extends Seeder
 {
     public function run()
     {
-
-        // Insertar los órganos de alta dirección
+        // 1. Insertar órganos de alta dirección
         DB::table('entidades')->insert([
             ['id' => 1, 'nombre' => 'Asamblea Universitaria', 'siglas' => 'AU', 'tipo' => 'Órgano de Alta Dirección', 'entidad_superior_id' => null, 'eliminado' => false],
             ['id' => 2, 'nombre' => 'Consejo Universitario', 'siglas' => 'CU', 'tipo' => 'Órgano de Alta Dirección', 'entidad_superior_id' => 1, 'eliminado' => false],
@@ -20,14 +19,14 @@ class EntidadesSeeder extends Seeder
             ['id' => 6, 'nombre' => 'Escuela de Posgrado', 'siglas' => 'EP', 'tipo' => 'Unidad', 'entidad_superior_id' => 3, 'eliminado' => false],
         ]);
 
-        // Insertar órganos especiales
+        // 2. Insertar órganos especiales
         DB::table('entidades')->insert([
             ['nombre' => 'Defensoría Universitaria', 'siglas' => 'DU', 'tipo' => 'Órgano Especial', 'entidad_superior_id' => null, 'eliminado' => false],
             ['nombre' => 'Tribunal de Honor Universitario', 'siglas' => 'THU', 'tipo' => 'Órgano Especial', 'entidad_superior_id' => null, 'eliminado' => false],
             ['nombre' => 'Comisión Permanente de Fiscalización', 'siglas' => 'CPF', 'tipo' => 'Órgano Especial', 'entidad_superior_id' => null, 'eliminado' => false],
         ]);
 
-        // Insertar órganos de asesoramiento
+        // 3. Insertar órganos de asesoramiento
         DB::table('entidades')->insert([
             ['nombre' => 'Oficina de Asesoría Jurídica', 'siglas' => 'OAJ', 'tipo' => 'Órgano de Asesoramiento', 'entidad_superior_id' => 3, 'eliminado' => false],
             ['nombre' => 'Oficina de Planeamiento y Presupuesto', 'siglas' => 'OPP', 'tipo' => 'Órgano de Asesoramiento', 'entidad_superior_id' => 3, 'eliminado' => false],
@@ -36,14 +35,14 @@ class EntidadesSeeder extends Seeder
             ['nombre' => 'Oficina de Comunicación e Imagen Institucional', 'siglas' => 'OCII', 'tipo' => 'Órgano de Asesoramiento', 'entidad_superior_id' => 3, 'eliminado' => false],
         ]);
 
-        // Insertar órganos de apoyo
+        // 4. Insertar órganos de apoyo
         DB::table('entidades')->insert([
             ['nombre' => 'Dirección General de Administración', 'siglas' => 'DGA', 'tipo' => 'Órgano de Apoyo', 'entidad_superior_id' => 3, 'eliminado' => false],
             ['nombre' => 'Oficina de Tecnologías de la Información', 'siglas' => 'OTI', 'tipo' => 'Órgano de Apoyo', 'entidad_superior_id' => 3, 'eliminado' => false],
             ['nombre' => 'Secretaría General', 'siglas' => 'SG', 'tipo' => 'Órgano de Apoyo', 'entidad_superior_id' => 3, 'eliminado' => false],
         ]);
 
-        // Insertar órganos del Vicerrectorado Académico
+        // 5. Insertar órganos del Vicerrectorado Académico
         DB::table('entidades')->insert([
             ['nombre' => 'Dirección de Responsabilidad Social Universitaria', 'siglas' => 'DRSU', 'tipo' => 'Unidad', 'entidad_superior_id' => 4, 'eliminado' => false],
             ['nombre' => 'Dirección de Bienestar Universitario', 'siglas' => 'DBU', 'tipo' => 'Unidad', 'entidad_superior_id' => 4, 'eliminado' => false],
@@ -52,7 +51,7 @@ class EntidadesSeeder extends Seeder
             ['nombre' => 'Dirección de Admisión', 'siglas' => 'DA', 'tipo' => 'Unidad', 'entidad_superior_id' => 4, 'eliminado' => false],
         ]);
 
-        // Insertar órganos del Vicerrectorado de Investigación
+        // 6. Insertar órganos del Vicerrectorado de Investigación
         DB::table('entidades')->insert([
             ['nombre' => 'Dirección de Producción de Bienes y Servicios', 'siglas' => 'DPBS', 'tipo' => 'Unidad', 'entidad_superior_id' => 5, 'eliminado' => false],
             ['nombre' => 'Dirección de Incubadora de Empresas', 'siglas' => 'DIE', 'tipo' => 'Unidad', 'entidad_superior_id' => 5, 'eliminado' => false],
@@ -61,46 +60,151 @@ class EntidadesSeeder extends Seeder
             ['nombre' => 'Unidad de Editorial Universitaria', 'siglas' => 'UEU', 'tipo' => 'Unidad', 'entidad_superior_id' => 5, 'eliminado' => false],
         ]);
 
-
-        // Insertar facultades y sus unidades
+        // 7. Insertar Facultades (agregamos los campos 'tipo', 'entidad_superior_id' y 'eliminado')
         $facultades = [
-            ['nombre' => 'Facultad de Agronomía', 'siglas' => 'FA'],
             ['nombre' => 'Facultad de Ciencias Biológicas', 'siglas' => 'FCB'],
-            ['nombre' => 'Facultad de Ciencias Económicas, Administrativas y Contables', 'siglas' => 'FCEAC'],
-            ['nombre' => 'Facultad de Ciencias Físicas y Matemáticas', 'siglas' => 'FCFM'],
-            ['nombre' => 'Facultad de Derecho y Ciencias Políticas', 'siglas' => 'FDCP'],
             ['nombre' => 'Facultad de Enfermería', 'siglas' => 'FE'],
-            ['nombre' => 'Facultad de Ingeniería Agrícola', 'siglas' => 'FIA'],
-            ['nombre' => 'Facultad de Ingeniería Civil, Sistemas y Arquitectura', 'siglas' => 'FICSA'],
-            ['nombre' => 'Facultad de Ingeniería Mecánica y Eléctrica', 'siglas' => 'FIME'],
-            ['nombre' => 'Facultad de Ingeniería Química e Industrias Alimentarias', 'siglas' => 'FIQIA'],
-            ['nombre' => 'Facultad de Ciencias Histórico Sociales y Educación', 'siglas' => 'FCHSE'],
             ['nombre' => 'Facultad de Medicina Humana', 'siglas' => 'FMH'],
             ['nombre' => 'Facultad de Medicina Veterinaria', 'siglas' => 'FMV'],
+            ['nombre' => 'Facultad de Ingeniería Civil, de Sistemas y de Arquitectura', 'siglas' => 'FICSA'],
+            ['nombre' => 'Facultad de Ciencias Físicas y Matemáticas', 'siglas' => 'FACFYM'],
+            ['nombre' => 'Facultad de Ingeniería Mecánica y Eléctrica', 'siglas' => 'FIME'],
+            ['nombre' => 'Facultad de Ingeniería Química e Industrias Alimentarias', 'siglas' => 'FIQIA'],
+            ['nombre' => 'Facultad de Agronomía', 'siglas' => 'FA'],
+            ['nombre' => 'Facultad de Ingeniería Agrícola', 'siglas' => 'FIA'],
             ['nombre' => 'Facultad de Ingeniería Zootecnia', 'siglas' => 'FIZ'],
+            ['nombre' => 'Facultad de Ciencias Histórico Sociales y Educación', 'siglas' => 'FACHSE'],
+            ['nombre' => 'Facultad de Derecho y Ciencia Política', 'siglas' => 'FDCP'],
+            ['nombre' => 'Facultad de Ciencias Económicas, Administrativas y Contables', 'siglas' => 'FACEAC'],
         ];
 
-        foreach ($facultades as $facultad) {
-            $idFacultad = DB::table('entidades')->insertGetId([
-                'nombre' => $facultad['nombre'],
-                'siglas' => $facultad['siglas'],
-                'tipo' => 'Facultad',
-                'entidad_superior_id' => null,
-                'eliminado' => false,
-            ]);
+        // Completar cada facultad con los campos faltantes
+        foreach ($facultades as &$facultad) {
+            $facultad['tipo'] = 'Facultad';
+            $facultad['entidad_superior_id'] = null;
+            $facultad['eliminado'] = false;
+        }
+        unset($facultad);
 
-            $unidades = ['Consejo de Facultad', 'Decanato', 'Departamento Académico', 'Unidad de Investigación', 'Unidad de Posgrado'];
-            foreach ($unidades as $unidad) {
+        DB::table('entidades')->insert($facultades);
+
+        // 8. Insertar Escuelas
+        // Cada escuela se asocia a su facultad (se busca el id de la facultad según la sigla)
+        $escuelas = [
+            ['nombre' => 'Biología - Biología', 'siglas' => 'BB', 'facultad' => 'FCB'],
+            ['nombre' => 'Biología - Botánica', 'siglas' => 'BBT', 'facultad' => 'FCB'],
+            ['nombre' => 'Biología - Microbiología - Parasitología', 'siglas' => 'BMP', 'facultad' => 'FCB'],
+            ['nombre' => 'Biología - Pesquería', 'siglas' => 'BP', 'facultad' => 'FCB'],
+            ['nombre' => 'Enfermería', 'siglas' => 'ENF', 'facultad' => 'FE'],
+            ['nombre' => 'Medicina Humana', 'siglas' => 'MH', 'facultad' => 'FMH'],
+            ['nombre' => 'Medicina Veterinaria', 'siglas' => 'MV', 'facultad' => 'FMV'],
+            ['nombre' => 'Arquitectura', 'siglas' => 'ARQ', 'facultad' => 'FICSA'],
+            ['nombre' => 'Ingeniería Civil', 'siglas' => 'IC', 'facultad' => 'FICSA'],
+            ['nombre' => 'Ingeniería de Sistemas', 'siglas' => 'IS', 'facultad' => 'FICSA'],
+            ['nombre' => 'Ingeniería en Computación e Informática', 'siglas' => 'ICI', 'facultad' => 'FACFYM'],
+            ['nombre' => 'Estadística', 'siglas' => 'EST', 'facultad' => 'FACFYM'],
+            ['nombre' => 'Física', 'siglas' => 'FIS', 'facultad' => 'FACFYM'],
+            ['nombre' => 'Matemáticas', 'siglas' => 'MAT', 'facultad' => 'FACFYM'],
+            ['nombre' => 'Ingeniería Electrónica', 'siglas' => 'IE', 'facultad' => 'FIME'],
+            ['nombre' => 'Ingeniería Mecánica y Eléctrica', 'siglas' => 'IME', 'facultad' => 'FIME'],
+            ['nombre' => 'Ingeniería Química', 'siglas' => 'IQ', 'facultad' => 'FIQIA'],
+            ['nombre' => 'Ingeniería de Industrias Alimentarias', 'siglas' => 'IIA', 'facultad' => 'FIQIA'],
+            ['nombre' => 'Agronomía', 'siglas' => 'AGRO', 'facultad' => 'FA'],
+            ['nombre' => 'Ingeniería Agrícola', 'siglas' => 'IA', 'facultad' => 'FIA'],
+            ['nombre' => 'Ingeniería Zootecnia', 'siglas' => 'IZ', 'facultad' => 'FIZ'],
+            ['nombre' => 'Arqueología', 'siglas' => 'ARQ', 'facultad' => 'FCHSE'],
+            ['nombre' => 'Arte con Especialidad en Artes Plásticas', 'siglas' => 'AAP', 'facultad' => 'FACHSE'],
+            ['nombre' => 'Arte con Especialidad en Teatro', 'siglas' => 'AET', 'facultad' => 'FCHSE'],
+            ['nombre' => 'Arte con Especialidad en Pedagogía Artística', 'siglas' => 'APA', 'facultad' => 'FACHSE'],
+            ['nombre' => 'Arte con Especialidad en Música', 'siglas' => 'AMU', 'facultad' => 'FACHSE'],
+            ['nombre' => 'Arte con Especialidad en Danzas', 'siglas' => 'ADA', 'facultad' => 'FACHSE'],
+            ['nombre' => 'Ciencias de la Comunicación', 'siglas' => 'CC', 'facultad' => 'FACHSE'],
+            ['nombre' => 'Psicología', 'siglas' => 'PSI', 'facultad' => 'FACHSE'],
+            ['nombre' => 'Sociología', 'siglas' => 'SOC', 'facultad' => 'FACHSE'],
+            ['nombre' => 'Educación Especialidad de Educación Inicial', 'siglas' => 'EEI', 'facultad' => 'FACHSE'],
+            ['nombre' => 'Derecho', 'siglas' => 'DER', 'facultad' => 'FDCP'],
+            ['nombre' => 'Ciencia Política', 'siglas' => 'CP', 'facultad' => 'FDCP'],
+            ['nombre' => 'Administración', 'siglas' => 'ADM', 'facultad' => 'FCEAC'],
+            ['nombre' => 'Comercio y Negocios Internacionales', 'siglas' => 'CNI', 'facultad' => 'FACEAC'],
+            ['nombre' => 'Contabilidad', 'siglas' => 'CONT', 'facultad' => 'FACEAC'],
+            ['nombre' => 'Economía', 'siglas' => 'ECO', 'facultad' => 'FACEAC'],
+        ];
+
+        foreach ($escuelas as $escuela) {
+            // Buscamos el id de la facultad según la sigla
+            $facultadId = DB::table('entidades')
+                ->where('siglas', $escuela['facultad'])
+                ->where('tipo', 'Facultad')
+                ->value('id');
+
+            if ($facultadId) {
                 DB::table('entidades')->insert([
-                    'nombre' => $unidad,
-                    'siglas' => substr($unidad, 0, 3),
-                    'tipo' => 'Unidad',
-                    'entidad_superior_id' => $idFacultad,
+                    'nombre' => 'Dirección de Escuela ' . $escuela['nombre'],
+                    'siglas' => $escuela['siglas'],
+                    'tipo' => 'Escuela Profesional',
+                    'entidad_superior_id' => $facultadId,
                     'eliminado' => false,
                 ]);
             }
+            if ($facultadId) {
+                // Verificar si la Unidad de Posgrado ya existe
+                $unidadPosgradoId = DB::table('entidades')
+                    ->where('nombre', 'Unidad de Posgrado ' . $escuela['facultad'])
+                    ->where('tipo', 'Unidad de Posgrado')
+                    ->where('entidad_superior_id', $facultadId)
+                    ->value('id');
+
+                // Si no existe, la creamos
+                if (!$unidadPosgradoId) {
+                    $unidadPosgradoId = DB::table('entidades')->insertGetId([
+                        'nombre' => 'Unidad de Posgrado ' . $escuela['facultad'],
+                        'siglas' => 'UP-' . $escuela['facultad'],
+                        'tipo' => 'Unidad de Posgrado',
+                        'entidad_superior_id' => $facultadId,
+                        'eliminado' => false,
+                    ]);
+                }
+            }
+
         }
 
+        // 9. Insertar subentidades para cada facultad
+        $subentidades = [];
+        foreach ($facultades as $facultad) {
+            // Obtenemos el id de la facultad (por siglas)
+            $facultadId = DB::table('entidades')
+                ->where('siglas', $facultad['siglas'])
+                ->where('tipo', 'Facultad')
+                ->value('id');
+
+            if ($facultadId) {
+                $subentidades[] = [
+                    'nombre' => 'Decanato ' . $facultad['siglas'],
+                    'siglas' => 'D-' . $facultad['siglas'],
+                    'tipo' => 'Subentidad',
+                    'entidad_superior_id' => $facultadId,
+                    'eliminado' => false,
+                ];
+                $subentidades[] = [
+                    'nombre' => 'Departamento Académico ' . $facultad['siglas'],
+                    'siglas' => 'DA-' . $facultad['siglas'],
+                    'tipo' => 'Subentidad',
+                    'entidad_superior_id' => $facultadId,
+                    'eliminado' => false,
+                ];
+                $subentidades[] = [
+                    'nombre' => 'Unidad de Investigación ' . $facultad['siglas'],
+                    'siglas' => 'UI-' . $facultad['siglas'],
+                    'tipo' => 'Subentidad',
+                    'entidad_superior_id' => $facultadId,
+                    'eliminado' => false,
+                ];
+            }
+        }
+
+        if (!empty($subentidades)) {
+            DB::table('entidades')->insert($subentidades);
+        }
         $entidades = [
             ['nombre' => 'Decanatos', 'siglas' => 'DEC', 'tipo' => 'Unidad', 'entidad_superior_id' => null, 'eliminado' => 0],
             ['nombre' => 'Direcciones de Escuelas', 'siglas' => 'DIREC', 'tipo' => 'Unidad', 'entidad_superior_id' => null, 'eliminado' => 0],
@@ -112,8 +216,5 @@ class EntidadesSeeder extends Seeder
         ];
 
         DB::table('entidades')->insert($entidades);
-
-
-
     }
 }
