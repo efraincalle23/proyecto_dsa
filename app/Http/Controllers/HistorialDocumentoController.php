@@ -10,9 +10,23 @@ use App\Models\HistorialDocumento;
 use App\Notifications\DocumentoAsignado;
 use App\Notifications\DocumentoRecibidoAsignado;
 
-class HistorialDocumentoController extends Controller
+class HistorialDocumentoController extends AuthenticatedController
 {
     //
+    public function __construct()
+    {
+        // Middleware de autenticación general para todas las funciones
+        $this->middleware('auth');
+
+        // Aplicar el middleware de rol solo a la función 'index'
+        $this->middleware(function ($request, $next) {
+            if (!request()->user()->hasAnyRole(['Administrador', 'Jefe DSA'])) {
+                abort(403, 'Acceso denegado');
+            }
+            return $next($request);
+        })->only(['index']);  // Aplica solo a la función 'index'
+    }
+
     public function index(Request $request)
     {
 

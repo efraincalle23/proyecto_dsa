@@ -96,11 +96,17 @@ class UserController extends AuthenticatedController
     /**
      * Display the specified resource.
      */
-    public function show($id) // Puedes usar la inyección de modelo si lo prefieres
+    public function show2($id) // Puedes usar la inyección de modelo si lo prefieres
     {
-        $user = User::findOrFail($id); // Cambiado de Usuario a User
-        return view('users.profile', compact('user')); // Cambiado de 'usuarios.show' a 'users.show'
+        $user = User::findOrFail($id);
+        return view('users.profile', compact('user'));
     }
+    public function show() // Puedes usar la inyección de modelo si lo prefieres
+    {
+        $user = request()->user(); // Obtiene al usuario autenticado
+        return view('users.profile', compact('user'));
+    }
+
 
     /**
      * Update the specified resource in storage.

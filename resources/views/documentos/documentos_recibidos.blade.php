@@ -36,17 +36,50 @@
         {{-- Filtros de búsqueda --}}
         <form method="GET" action="{{ route('documentos_recibidos.index') }}" class="mb-4">
             <div class="row">
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <input type="text" name="numero_oficio" class="form-control"
                         placeholder="Buscar por número de oficio" value="{{ request('numero_oficio') }}">
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <input type="date" name="fecha_recibido" class="form-control"
                         placeholder="Buscar por fecha de recepción" value="{{ request('fecha_recibido') }}">
                 </div>
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <input type="text" name="remitente" class="form-control" placeholder="Buscar por remitente"
                         value="{{ request('remitente') }}">
+                </div>
+                <div class="col-md-3">
+                    <select name="estado_nuevo" class="form-select">
+                        <option value="">-- Seleccionar Estado --</option>
+                        <option value="creado" {{ request('estado_nuevo') == 'creado' ? 'selected' : '' }}>Creado</option>
+                        <option value="actualizado" {{ request('estado_nuevo') == 'Actualizado' ? 'selected' : '' }}>
+                            Actualizado</option>
+                        <option value="por firma" {{ request('estado_nuevo') == 'por firma' ? 'selected' : '' }}>Por firma
+                        </option>
+                        <option value="firmado" {{ request('estado_nuevo') == 'firmado' ? 'selected' : '' }}>Firmado
+                        </option>
+                        <option value="en revisión" {{ request('estado_nuevo') == 'en revisión' ? 'selected' : '' }}>En
+                            revisión</option>
+                        <option value="en proceso" {{ request('estado_nuevo') == 'en proceso' ? 'selected' : '' }}>En
+                            proceso</option>
+                        <option value="observado" {{ request('estado_nuevo') == 'observado' ? 'selected' : '' }}>Observado
+                        </option>
+                        <option value="devuelto" {{ request('estado_nuevo') == 'devuelto' ? 'selected' : '' }}>Devuelto
+                        </option>
+                        <option value="por respuesta" {{ request('estado_nuevo') == 'por respuesta' ? 'selected' : '' }}>
+                            Por respuesta</option>
+                        <option value="atendido" {{ request('estado_nuevo') == 'atendido' ? 'selected' : '' }}>Atendido
+                        </option>
+                        <option value="archivado" {{ request('estado_nuevo') == 'archivado' ? 'selected' : '' }}>Archivado
+                        </option>
+                        <option value="vencido" {{ request('estado_nuevo') == 'vencido' ? 'selected' : '' }}>Vencido
+                        </option>
+                        <option value="otro" {{ request('estado_nuevo') == 'otro' ? 'selected' : '' }}>Otro</option>
+                        <option value="Recibido" {{ request('estado_nuevo') == 'Recibido' ? 'selected' : '' }}>Recibido
+                        </option>
+                        <option value="Eliminado" {{ request('estado_nuevo') == 'Eliminado' ? 'selected' : '' }}>Eliminado
+                        </option>
+                    </select>
                 </div>
                 <div class="col-md-2 d-flex align-items-end">
                     <button type="submit" class="btn btn-secondary me-2">
@@ -537,13 +570,22 @@
                                             <div class="mb-3">
                                                 <label class="form-label">Estado Nuevo</label>
                                                 <select name="estado_nuevo" class="form-select" required>
+                                                    <option value="creado">Creado</option>
+                                                    <option value="actualizado">Actualizado</option>
                                                     <option value="por firma">Por firma</option>
-                                                    <option value="observado">Observado</option>
+                                                    <option value="firmado">Firmado</option>
+                                                    <option value="en revisión">En revisión</option>
                                                     <option value="en proceso">En proceso</option>
+                                                    <option value="observado">Observado</option>
+                                                    <option value="devuelto">Devuelto</option>
+                                                    <option value="por respuesta">Por respuesta</option>
                                                     <option value="atendido">Atendido</option>
+                                                    <option value="archivado">Archivado</option>
+                                                    <option value="vencido">Vencido</option>
                                                     <option value="otro">Otro</option>
                                                 </select>
                                             </div>
+
                                             <div class="mb-3">
                                                 <label class="form-label">Observaciones</label>
                                                 <textarea name="observaciones" class="form-control" rows="3"></textarea>

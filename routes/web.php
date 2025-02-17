@@ -21,6 +21,10 @@ use App\Exports\DocumentosRecibidosExport;
 use App\Exports\DocumentosEmitidosExport;
 use App\Exports\HistorialDocumentosExport;
 use App\Http\Controllers\ConfiguracionController;
+use Illuminate\Support\Facades\Gate;
+
+
+
 // Redirigir la raíz según autenticación
 Route::get('/', function () {
     return Auth::check() ? redirect('/dashboard') : redirect('/login');
@@ -35,8 +39,6 @@ Route::get('/login', function () {
 /*Route::get('documento', function () {
     return view('documentos/documentos');
 });*/
-
-
 //para controlar usuarios:
 Route::get('/users/monitoreo', function () {
     $usuarios = DB::table('user_sessions')
@@ -79,7 +81,6 @@ Route::get('/exportar-historial', function () {
     return (new HistorialDocumentosExport())->export();
 })->middleware('auth');
 
-
 //definir nuevo inicio
 
 Route::post('/configuracion/numero-oficio-inicio', [ConfiguracionController::class, 'actualizarNumeroOficioInicio'])->name('configuracion.actualizarNumeroOficioInicio');
@@ -88,7 +89,7 @@ Route::post('/configuracion/numero-oficio-inicio', [ConfiguracionController::cla
 
 // Rutas tipo recurso para usuarios
 
-Route::resource('users', controller: UserController::class)->middleware('auth');
+Route::resource('users', controller: UserController::class)->middleware(middleware: 'auth');
 
 
 Route::put('/users/{user}/updateFoto', [UserController::class, 'updateFoto'])->name('users.updateFoto')->middleware('auth');
@@ -121,10 +122,19 @@ use App\Http\Controllers\Auth\SocialController;
 Route::get('auth/google', [SocialController::class, 'redirectToGoogle'])->name('auth.google');
 Route::get('auth/google/callback', [SocialController::class, 'handleGoogleCallback']);
 
-Route::get('/perfil/{id}', [UserController::class, 'show'])->name('user.profile')->middleware('auth');
-Route::put('/users/{id}/password', [UserController::class, 'updatePassword'])->name('users.updatePassword')->middleware('auth');
+//Route::get('/perfil/{id}', [UserController::class, 'show'])->name('user.profile')->middleware('auth');
+//Route::put('/users/{id}/password', [UserController::class, 'updatePassword'])->name('users.updatePassword')->middleware('auth');
 
 
+Route::get('/perfil/{id}', [UserController::class, 'show'])
+    ->name('user.profile')
+    ->middleware(['auth', 'profile.access']);
+
+
+
+Route::put('/users/{id}/password', action: [UserController::class, 'updatePassword'])
+    ->name('users.updatePassword')
+    ->middleware(['auth', 'profile.access']);
 
 Route::resource('entidades', EntidadController::class)->middleware('auth');
 

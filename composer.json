@@ -7,7 +7,6 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
-        "box/spout": "^3.3",
         "laravel/framework": "^11.31",
         "laravel/socialite": "^5.16",
         "laravel/tinker": "^2.9",

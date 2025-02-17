@@ -19,7 +19,7 @@ class CreateDocumentosRecibidosTable extends Migration
             $table->string('nombre_doc'); // Campo para el nombre del documento
             $table->string('asunto');  // Asunto del documento
             $table->date('fecha_recibido');  // Fecha en que el documento fue recibido
-            $table->enum('tipo', ['Oficio', 'Solicitud', 'Otro'])->default('oficio');  // Tipo de documento
+            $table->string('tipo');
             $table->string('remitente');  // Persona o entidad que firma el documento
             $table->string('observaciones', 200)->nullable();
             $table->foreignId('entidad_id')->constrained('entidades')->onDelete('cascade');  // Relación con la entidad remitente (entidad_id)

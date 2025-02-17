@@ -63,14 +63,26 @@ class DocumentoRecibidoController extends Controller
             $query->where('remitente', 'like', '%' . $request->remitente . '%');
         }
 
+        // Filtrar por estado nuevo
+        if ($request->has('estado_nuevo') && $request->estado_nuevo != '') {
+             $query->whereHas('HistorialDocumento', function ($query) use ($request) {
+                 $query->where('origen', 'recibido')
+                     ->where('estado_nuevo', $request->estado_nuevo);
+             });
+         }
+
+       
+
+
+
         // Aplicar filtro de 'eliminado' basado en el rol del usuario
         if ($user->hasRole('Administrador') || $user->hasRole('Jefa DSA')) {
             // Mostrar todos los documentos, incluidos los eliminados
             // No se aplica filtro de 'eliminado'
         } /*else {
-      // Mostrar solo los documentos activos (no eliminados)
-      $query->where('eliminado', false);
-  }*/
+// Mostrar solo los documentos activos (no eliminados)
+$query->where('eliminado', false);
+}*/
 
         // Obtener los documentos con paginación
         $documentos = $query->paginate(10);  // Ajusta el número de resultados por página
@@ -118,7 +130,7 @@ class DocumentoRecibidoController extends Controller
             'numero_oficio' => 'required|string|max:50|unique:documentos_recibidos,numero_oficio,NULL,id,entidad_id,' . $request->entidad_id, // Combinación única de numero_oficio y entidad_id
             'asunto' => 'required|string|max:255',
             'fecha_recibido' => 'required|date',
-            'tipo' => 'required|in:oficio,solicitud,otro',
+            'tipo' => 'required',
             'remitente' => 'required|string|max:100',
             'entidad_id' => 'required|exists:entidades,id',
             'observaciones' => 'nullable|string|max:200',
@@ -453,7 +465,7 @@ class DocumentoRecibidoController extends Controller
             'numero_oficio' => 'required|string|max:50',
             'asunto' => 'required|string|max:255',
             'fecha_recibido' => 'required|date',
-            'tipo' => 'required|in:oficio,solicitud,otro',
+            'tipo' => 'required',
             'remitente' => 'required|string|max:100',
             'entidad_id' => 'required|exists:entidades,id',
             'observaciones' => 'nullable|string|max:200',

@@ -116,20 +116,6 @@
                                 </select>
                             </div>
                         @else
-                            <div class="mb-3">
-                                <label hidden>Rol</label>
-                                <select class="form-select" name="rol" required hidden>
-                                    <option value="Jefe DSA" {{ $user->rol == 'Jefe DSA' ? 'selected' : '' }}>Jefe DSA
-                                    </option>
-                                    <option value="Administrador" {{ $user->rol == 'Administrador' ? 'selected' : '' }}>
-                                        Administrador</option>
-                                    <option value="Administrativo" {{ $user->rol == 'Administrativo' ? 'selected' : '' }}>
-                                        Administrativo</option>
-                                    <option value="Secretaria" {{ $user->rol == 'Secretaria' ? 'selected' : '' }}>
-                                        Secretaria
-                                    </option>
-                                </select>
-                            </div>
                         @endif
                         <div class="mb-3">
                             <label>Foto</label>

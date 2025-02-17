@@ -3,9 +3,8 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
-use App\Http\Middleware\TrackUserActivity;
-
-
+use App\Http\Middleware\ProfileAccessMiddleware;
+use App\Http\Middleware\AdminOrJefeDSA;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__ . '/../routes/web.php',
@@ -14,9 +13,11 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
 
-        //
-        //$middleware->append(StartSession::class); // Asegura que las sesiones funcionan
-    
+
+        $middleware->alias([
+            'profile.access' => ProfileAccessMiddleware::class,
+            'admin.jefe' => AdminOrJefeDSA::class, // Ahora en la misma definición
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
