@@ -25,7 +25,8 @@
                                         value="{{ request('email') }}">
                                 </div>
                                 <div class="col-12 col-sm-6 col-md-3">
-                                    <select class="form-control" name="rol" required>
+                                    <select class="form-control" name="rol">
+                                        <option value="">-- Seleccione --</option>
                                         <option value="Jefe DSA">Jefe DSA</option>
                                         <option value="Administrador">Administrador</option>
                                         <option value="Administrativo">Administrativo</option>
