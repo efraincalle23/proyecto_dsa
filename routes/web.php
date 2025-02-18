@@ -22,6 +22,7 @@ use App\Exports\DocumentosEmitidosExport;
 use App\Exports\HistorialDocumentosExport;
 use App\Http\Controllers\ConfiguracionController;
 use Illuminate\Support\Facades\Gate;
+use App\Http\Middleware\CheckRoles;
 
 
 
@@ -71,11 +72,17 @@ Route::get('/exportar-recibidos', function () {
     return (new DocumentosRecibidosExport())->export($user);
 })->middleware('auth');
 
+/*Route::get('/exportar-emitidos', function () {
+    $user = Auth::user();
+    return (new DocumentosEmitidosExport())->export($user);
+})->middleware('auth');*/
+
+//2
 Route::get('/exportar-emitidos', function () {
     $user = Auth::user();
     return (new DocumentosEmitidosExport())->export($user);
-})->middleware('auth');
-
+})->middleware(['auth', CheckRoles::class.':Administrador,Jefe DSA,Secretaria']);
+//fin 2
 
 Route::get('/exportar-historial', function () {
     return (new HistorialDocumentosExport())->export();
@@ -150,8 +157,11 @@ Route::put('/documentos/{id}/restore', [DocumentoRecibidoController::class, 'res
 Route::post('/historial/asignar/{id_documento}', [HistorialDocumentoController::class, 'asignar'])->name('historial.asignar')->middleware('auth');
 Route::post('/historial/asignarEmitidos/{id_documento}', [HistorialDocumentoController::class, 'asignarEmitidos'])->name('historial.asignarEmitidos')->middleware('auth');
 
-Route::resource('documentos_emitidos', DocumentoEmitidoController::class)->middleware('auth');
-;
+
+//Route::resource('documentos_emitidos', DocumentoEmitidoController::class)->middleware('auth');
+Route::resource('documentos_emitidos', DocumentoEmitidoController::class)
+    ->middleware(['auth', CheckRoles::class . ':Administrador,Jefe DSA,Secretaria']);
+
 Route::put('/documentos_emitidos/{id}/restore', [DocumentoEmitidoController::class, 'restore'])->name('documentos_emitidos.restore')->middleware('auth');
 Route::put('/documentos/emitidos/{documento}/respuesta', [DocumentoEmitidoController::class, 'storeRespuesta'])->name('documentos_emitidos.storeRespuesta')->middleware('auth');
 
