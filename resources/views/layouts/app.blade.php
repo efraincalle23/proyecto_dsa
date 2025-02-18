@@ -55,8 +55,11 @@
             </a>
             <div id="submenu-documentos" class="submenu">
                 <a href="/documentos_recibidos"><i class="bi bi-file-earmark-arrow-down-fill"></i> Recibidos</a>
-                <a href="/documentos_emitidos"><i class="bi bi-file-earmark-arrow-up-fill"></i> Emitidos</a>
-                <a href="/documentos-todos"><i class="bi bi-folder-fill"></i> Todos</a>
+                @role('Administrador|Jefe DSA|Secretaria')
+                    <a href="/documentos_emitidos"><i class="bi bi-file-earmark-arrow-up-fill"></i> Emitidos</a>
+                    <a href="/documentos-todos"><i class="bi bi-folder-fill"></i> Todos</a>
+                @endrole
+
             </div>
         </div>
 

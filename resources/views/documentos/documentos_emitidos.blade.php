@@ -17,7 +17,7 @@
                     Nuevo Documento
                 </button>
                 <!-- Botón para abrir el modal -->
-                @role('Administrador|Jefe DSA')
+                @role('Administrador|Jefe DSA|Secretaria')
                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#configModal">
                         <i class="bi bi-gear-fill"></i>
                     </button>
