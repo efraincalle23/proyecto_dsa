@@ -15,10 +15,10 @@ class AssignRolesSeeder extends Seeder
     public function run()
     {
         // Ejemplo: Asignar roles a usuarios específicos
-        $user1 = User::find(2); // Usuario con ID 1
+        $user1 = User::find(1); // Usuario con ID 1
         $user1->assignRole('Jefe DSA');
 
-        $user2 = User::find(1); // Usuario con ID 2
+        $user2 = User::find(2); // Usuario con ID 2
         $user2->assignRole('Administrador');
 
         //$user3 = User::find(6); // Usuario con ID 3

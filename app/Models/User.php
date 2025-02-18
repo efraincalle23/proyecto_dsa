@@ -63,6 +63,13 @@ class User extends Authenticatable
                 $user->assignRole($user->rol);
             }
         });
+        // Evento de actualización: Sincronizar el rol cuando se actualiza un usuario
+        static::updated(function ($user) {
+            if ($user->rol) {
+                // Sincronizamos el rol al actualizar el usuario
+                $user->syncRoles($user->rol);
+            }
+        });
     }
 
 
