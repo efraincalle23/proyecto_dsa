@@ -239,16 +239,16 @@
                                 @role('Administrador|Jefe DSA')
                                 @endrole
                                 <!-- Botón para abrir el modal de edición -->
-                                <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal"
-                                    data-bs-target="#editModal-{{ $documento->id }}">
+                                <button type="button" title="Haz clic para editar" class="btn btn-warning btn-sm"
+                                    data-bs-toggle="modal" data-bs-target="#editModal-{{ $documento->id }}">
                                     <i class="bi bi-pencil-square"></i> <!-- Ícono de editar -->
                                 </button>
 
                                 <!-- Botón para abrir el modal de eliminación -->
                                 @if ($documento->eliminado)
                                 @else
-                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
-                                        data-bs-target="#deleteModal-{{ $documento->id }}">
+                                    <button type="button" title="Haz clic para eliminar" class="btn btn-danger btn-sm"
+                                        data-bs-toggle="modal" data-bs-target="#deleteModal-{{ $documento->id }}">
                                         <i class="bi bi-x-circle-fill"></i>
                                     </button>
                                 @endif
@@ -258,31 +258,31 @@
                                         class="d-inline">
                                         @csrf
                                         @method('PUT')
-                                        <button type="submit" class="btn btn-warning btn-sm"><i
-                                                class="bi bi-arrow-repeat"></i></button>
+                                        <button type="submit" class="btn btn-warning btn-sm"
+                                            title="Haz clic para restaurar"><i class="bi bi-arrow-repeat"></i></button>
                                     </form>
                                 @endif
 
 
                                 @if ($documento->eliminado)
                                 @else
-                                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal"
-                                        data-bs-target="#asignarModal{{ $documento->id }}">
+                                    <button type="button" title="Haz clic para asignar" class="btn btn-primary btn-sm"
+                                        data-bs-toggle="modal" data-bs-target="#asignarModal{{ $documento->id }}">
                                         <i class="bi bi-person-plus"></i>
                                     </button>
                                 @endif
-                                <button type="button" class="btn btn-info btn-sm" data-bs-toggle="modal"
-                                    data-bs-target="#historialModal{{ $documento->id }}">
+                                <button type="button" title="Haz clic para ver historial" class="btn btn-info btn-sm"
+                                    data-bs-toggle="modal" data-bs-target="#historialModal{{ $documento->id }}">
                                     <i class="bi bi-clock-history"></i>
                                 </button>
-                                <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal"
-                                    data-bs-target="#respuestaModal-{{ $documento->id }}">
+                                <button type="button" title="Responder a este documento" class="btn btn-warning btn-sm"
+                                    data-bs-toggle="modal" data-bs-target="#respuestaModal-{{ $documento->id }}">
                                     <i class="bi bi-reply-all-fill"></i>
                                 </button>
                                 @role('Administrador|Jefe DSA')
                                     <!-- Botón que activa el modal -->
-                                    <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
-                                        data-bs-target="#confirmDeleteModal-{{ $documento->id }}">
+                                    <button type="button" title="Eliminar definitivamente" class="btn btn-danger btn-sm"
+                                        data-bs-toggle="modal" data-bs-target="#confirmDeleteModal-{{ $documento->id }}">
                                         <i class="bi bi-trash"></i>
                                     </button>
 
