@@ -11,55 +11,63 @@ class EntidadesSeeder extends Seeder
     {
         // 1. Insertar órganos de alta dirección
         DB::table('entidades')->insert([
-            ['id' => 1, 'nombre' => 'Asamblea Universitaria', 'siglas' => 'AU', 'tipo' => 'Órgano de Alta Dirección', 'entidad_superior_id' => null, 'eliminado' => false],
-            ['id' => 2, 'nombre' => 'Consejo Universitario', 'siglas' => 'CU', 'tipo' => 'Órgano de Alta Dirección', 'entidad_superior_id' => 1, 'eliminado' => false],
-            ['id' => 3, 'nombre' => 'Rectorado', 'siglas' => 'RECT', 'tipo' => 'Órgano de Alta Dirección', 'entidad_superior_id' => 2, 'eliminado' => false],
-            ['id' => 4, 'nombre' => 'Vicerrectorado Académico', 'siglas' => 'VRA', 'tipo' => 'Órgano de Alta Dirección', 'entidad_superior_id' => 3, 'eliminado' => false],
-            ['id' => 5, 'nombre' => 'Vicerrectorado de Investigación', 'siglas' => 'VRI', 'tipo' => 'Órgano de Alta Dirección', 'entidad_superior_id' => 3, 'eliminado' => false],
-            ['id' => 6, 'nombre' => 'Escuela de Posgrado', 'siglas' => 'EP', 'tipo' => 'Unidad', 'entidad_superior_id' => 3, 'eliminado' => false],
+            ['id' => 1, 'nombre' => 'Asamblea Universitaria', 'siglas' => 'AU', 'tipo' => 'Oficina', 'entidad_superior_id' => null, 'eliminado' => false],
+            ['id' => 2, 'nombre' => 'Consejo Universitario', 'siglas' => 'CU', 'tipo' => 'Oficina', 'entidad_superior_id' => 1, 'eliminado' => false],
+            ['id' => 3, 'nombre' => 'Rectorado', 'siglas' => 'RECT', 'tipo' => 'Oficina', 'entidad_superior_id' => 2, 'eliminado' => false],
+            ['id' => 4, 'nombre' => 'Vicerrectorado Académico', 'siglas' => 'VRA', 'tipo' => 'Oficina', 'entidad_superior_id' => 3, 'eliminado' => false],
+            ['id' => 5, 'nombre' => 'Vicerrectorado de Investigación', 'siglas' => 'VRI', 'tipo' => 'Oficina', 'entidad_superior_id' => 3, 'eliminado' => false],
+            ['id' => 6, 'nombre' => 'Escuela de Posgrado', 'siglas' => 'EP', 'tipo' => 'Escuela', 'entidad_superior_id' => 3, 'eliminado' => false],
         ]);
 
         // 2. Insertar órganos especiales
         DB::table('entidades')->insert([
-            ['nombre' => 'Defensoría Universitaria', 'siglas' => 'DU', 'tipo' => 'Órgano Especial', 'entidad_superior_id' => null, 'eliminado' => false],
-            ['nombre' => 'Tribunal de Honor Universitario', 'siglas' => 'THU', 'tipo' => 'Órgano Especial', 'entidad_superior_id' => null, 'eliminado' => false],
-            ['nombre' => 'Comisión Permanente de Fiscalización', 'siglas' => 'CPF', 'tipo' => 'Órgano Especial', 'entidad_superior_id' => null, 'eliminado' => false],
+            ['nombre' => 'Defensoría Universitaria', 'siglas' => 'DU', 'tipo' => 'Oficina', 'entidad_superior_id' => null, 'eliminado' => false],
+            ['nombre' => 'Tribunal de Honor Universitario', 'siglas' => 'THU', 'tipo' => 'Oficina', 'entidad_superior_id' => null, 'eliminado' => false],
+            ['nombre' => 'Comisión Permanente de Fiscalización', 'siglas' => 'CPF', 'tipo' => 'Oficina', 'entidad_superior_id' => null, 'eliminado' => false],
         ]);
 
         // 3. Insertar órganos de asesoramiento
         DB::table('entidades')->insert([
-            ['nombre' => 'Oficina de Asesoría Jurídica', 'siglas' => 'OAJ', 'tipo' => 'Órgano de Asesoramiento', 'entidad_superior_id' => 3, 'eliminado' => false],
-            ['nombre' => 'Oficina de Planeamiento y Presupuesto', 'siglas' => 'OPP', 'tipo' => 'Órgano de Asesoramiento', 'entidad_superior_id' => 3, 'eliminado' => false],
-            ['nombre' => 'Oficina de Gestión de la Calidad', 'siglas' => 'OGC', 'tipo' => 'Órgano de Asesoramiento', 'entidad_superior_id' => 3, 'eliminado' => false],
-            ['nombre' => 'Oficina de Cooperación y Relaciones Internacionales', 'siglas' => 'OCRI', 'tipo' => 'Órgano de Asesoramiento', 'entidad_superior_id' => 3, 'eliminado' => false],
-            ['nombre' => 'Oficina de Comunicación e Imagen Institucional', 'siglas' => 'OCII', 'tipo' => 'Órgano de Asesoramiento', 'entidad_superior_id' => 3, 'eliminado' => false],
+            ['nombre' => 'Oficina de Asesoría Jurídica', 'siglas' => 'OAJ', 'tipo' => 'Oficina', 'entidad_superior_id' => 3, 'eliminado' => false],
+            ['nombre' => 'Oficina de Planeamiento y Presupuesto', 'siglas' => 'OPP', 'tipo' => 'Oficina', 'entidad_superior_id' => 3, 'eliminado' => false],
+            ['nombre' => 'Oficina de Gestión de la Calidad', 'siglas' => 'OGC', 'tipo' => 'Oficina', 'entidad_superior_id' => 3, 'eliminado' => false],
+            ['nombre' => 'Oficina de Cooperación y Relaciones Internacionales', 'siglas' => 'OCRI', 'tipo' => 'Oficina', 'entidad_superior_id' => 3, 'eliminado' => false],
+            ['nombre' => 'Oficina de Comunicación e Imagen Institucional', 'siglas' => 'OCII', 'tipo' => 'Oficina', 'entidad_superior_id' => 3, 'eliminado' => false],
         ]);
 
         // 4. Insertar órganos de apoyo
         DB::table('entidades')->insert([
-            ['nombre' => 'Dirección General de Administración', 'siglas' => 'DGA', 'tipo' => 'Órgano de Apoyo', 'entidad_superior_id' => 3, 'eliminado' => false],
-            ['nombre' => 'Oficina de Tecnologías de la Información', 'siglas' => 'OTI', 'tipo' => 'Órgano de Apoyo', 'entidad_superior_id' => 3, 'eliminado' => false],
-            ['nombre' => 'Secretaría General', 'siglas' => 'SG', 'tipo' => 'Órgano de Apoyo', 'entidad_superior_id' => 3, 'eliminado' => false],
+            ['nombre' => 'Dirección General de Administración', 'siglas' => 'DGA', 'tipo' => 'Dirección', 'entidad_superior_id' => 3, 'eliminado' => false],
+            ['nombre' => 'Oficina de Tecnologías de la Información', 'siglas' => 'OTI', 'tipo' => 'Oficina', 'entidad_superior_id' => 3, 'eliminado' => false],
+            ['nombre' => 'Secretaría General', 'siglas' => 'SG', 'tipo' => 'Oficina', 'entidad_superior_id' => 3, 'eliminado' => false],
         ]);
 
         // 5. Insertar órganos del Vicerrectorado Académico
         DB::table('entidades')->insert([
-            ['nombre' => 'Dirección de Responsabilidad Social Universitaria', 'siglas' => 'DRSU', 'tipo' => 'Unidad', 'entidad_superior_id' => 4, 'eliminado' => false],
-            ['nombre' => 'Dirección de Bienestar Universitario', 'siglas' => 'DBU', 'tipo' => 'Unidad', 'entidad_superior_id' => 4, 'eliminado' => false],
-            ['nombre' => 'Dirección de Servicios Académicos', 'siglas' => 'DSA', 'tipo' => 'Unidad', 'entidad_superior_id' => 4, 'eliminado' => false],
+            ['nombre' => 'Dirección de Responsabilidad Social Universitaria', 'siglas' => 'DRSU', 'tipo' => 'Dirección', 'entidad_superior_id' => 4, 'eliminado' => false],
+            ['nombre' => 'Dirección de Bienestar Universitario', 'siglas' => 'DBU', 'tipo' => 'Dirección', 'entidad_superior_id' => 4, 'eliminado' => false],
+            ['nombre' => 'Dirección de Servicios Académicos', 'siglas' => 'DSA', 'tipo' => 'Dirección', 'entidad_superior_id' => 4, 'eliminado' => false],
             ['nombre' => 'Unidad del Sistema de Bibliotecas', 'siglas' => 'USB', 'tipo' => 'Unidad', 'entidad_superior_id' => 4, 'eliminado' => false],
-            ['nombre' => 'Dirección de Admisión', 'siglas' => 'DA', 'tipo' => 'Unidad', 'entidad_superior_id' => 4, 'eliminado' => false],
+            ['nombre' => 'Dirección de Admisión', 'siglas' => 'DA', 'tipo' => 'Dirección', 'entidad_superior_id' => 4, 'eliminado' => false],
         ]);
 
         // 6. Insertar órganos del Vicerrectorado de Investigación
         DB::table('entidades')->insert([
-            ['nombre' => 'Dirección de Producción de Bienes y Servicios', 'siglas' => 'DPBS', 'tipo' => 'Unidad', 'entidad_superior_id' => 5, 'eliminado' => false],
-            ['nombre' => 'Dirección de Incubadora de Empresas', 'siglas' => 'DIE', 'tipo' => 'Unidad', 'entidad_superior_id' => 5, 'eliminado' => false],
-            ['nombre' => 'Dirección de Innovación y Transferencia Tecnológica', 'siglas' => 'DITT', 'tipo' => 'Unidad', 'entidad_superior_id' => 5, 'eliminado' => false],
+            ['nombre' => 'Dirección de Producción de Bienes y Servicios', 'siglas' => 'DPBS', 'tipo' => 'Dirección', 'entidad_superior_id' => 5, 'eliminado' => false],
+            ['nombre' => 'Dirección de Incubadora de Empresas', 'siglas' => 'DIE', 'tipo' => 'Dirección', 'entidad_superior_id' => 5, 'eliminado' => false],
+            ['nombre' => 'Dirección de Innovación y Transferencia Tecnológica', 'siglas' => 'DITT', 'tipo' => 'Dirección', 'entidad_superior_id' => 5, 'eliminado' => false],
             ['nombre' => 'Instituto de Investigación', 'siglas' => 'II', 'tipo' => 'Unidad', 'entidad_superior_id' => 5, 'eliminado' => false],
             ['nombre' => 'Unidad de Editorial Universitaria', 'siglas' => 'UEU', 'tipo' => 'Unidad', 'entidad_superior_id' => 5, 'eliminado' => false],
         ]);
 
+        // 7. Insertar las nuevas oficinas bajo la Oficina General de Recursos Humanos
+        DB::table('entidades')->insert([
+            ['nombre' => 'Oficina General de Recursos Humanos', 'siglas' => 'OGRH', 'tipo' => 'Oficina', 'entidad_superior_id' => 3, 'eliminado' => false],
+            ['nombre' => 'Of. General de Infraestructura y Servicios', 'siglas' => 'OGIS', 'tipo' => 'Oficina', 'entidad_superior_id' => 7, 'eliminado' => false],
+            ['nombre' => 'Oficina de Control de Personal', 'siglas' => 'OCP', 'tipo' => 'Oficina', 'entidad_superior_id' => 7, 'eliminado' => false],
+            ['nombre' => 'Oficina de Remuneraciones', 'siglas' => 'OR', 'tipo' => 'Oficina', 'entidad_superior_id' => 7, 'eliminado' => false],
+            ['nombre' => 'Oficina de Escalafón y Evaluación', 'siglas' => 'OEE', 'tipo' => 'Oficina', 'entidad_superior_id' => 7, 'eliminado' => false],
+        ]);
         // 7. Insertar Facultades (agregamos los campos 'tipo', 'entidad_superior_id' y 'eliminado')
         $facultades = [
             ['nombre' => 'Facultad de Ciencias Biológicas', 'siglas' => 'FCB'],
@@ -181,21 +189,21 @@ class EntidadesSeeder extends Seeder
                 $subentidades[] = [
                     'nombre' => 'Decanato ' . $facultad['siglas'],
                     'siglas' => 'D-' . $facultad['siglas'],
-                    'tipo' => 'Subentidad',
+                    'tipo' => 'Decanato',
                     'entidad_superior_id' => $facultadId,
                     'eliminado' => false,
                 ];
                 $subentidades[] = [
                     'nombre' => 'Departamento Académico ' . $facultad['siglas'],
                     'siglas' => 'DA-' . $facultad['siglas'],
-                    'tipo' => 'Subentidad',
+                    'tipo' => 'Departamento',
                     'entidad_superior_id' => $facultadId,
                     'eliminado' => false,
                 ];
                 $subentidades[] = [
                     'nombre' => 'Unidad de Investigación ' . $facultad['siglas'],
                     'siglas' => 'UI-' . $facultad['siglas'],
-                    'tipo' => 'Subentidad',
+                    'tipo' => 'Unidad',
                     'entidad_superior_id' => $facultadId,
                     'eliminado' => false,
                 ];
@@ -206,13 +214,13 @@ class EntidadesSeeder extends Seeder
             DB::table('entidades')->insert($subentidades);
         }
         $entidades = [
-            ['nombre' => 'Decanatos', 'siglas' => 'DEC', 'tipo' => 'Unidad', 'entidad_superior_id' => null, 'eliminado' => 0],
-            ['nombre' => 'Direcciones de Escuelas', 'siglas' => 'DIREC', 'tipo' => 'Unidad', 'entidad_superior_id' => null, 'eliminado' => 0],
-            ['nombre' => 'Departamentos Académicos', 'siglas' => 'DEPA', 'tipo' => 'Unidad', 'entidad_superior_id' => null, 'eliminado' => 0],
-            ['nombre' => 'Decanatos, Direcciones de Escuelas', 'siglas' => 'DEC-DIREC', 'tipo' => 'Combinado', 'entidad_superior_id' => null, 'eliminado' => 0],
-            ['nombre' => 'Decanatos, Departamentos Académicos', 'siglas' => 'DEC-DEPA', 'tipo' => 'Combinado', 'entidad_superior_id' => null, 'eliminado' => 0],
-            ['nombre' => 'Direcciones de Escuelas, Departamentos Académicos', 'siglas' => 'DIREC-DEPA', 'tipo' => 'Combinado', 'entidad_superior_id' => null, 'eliminado' => 0],
-            ['nombre' => 'Decanatos, Direcciones de Escuelas, Departamentos Académicos', 'siglas' => 'DEC-DIREC-DEPA', 'tipo' => 'Combinado', 'entidad_superior_id' => null, 'eliminado' => 0],
+            ['nombre' => 'Decanatos', 'siglas' => 'DEC', 'tipo' => 'Circular', 'entidad_superior_id' => null, 'eliminado' => 0],
+            ['nombre' => 'Direcciones de Escuelas', 'siglas' => 'DIREC', 'tipo' => 'Circular', 'entidad_superior_id' => null, 'eliminado' => 0],
+            ['nombre' => 'Departamentos Académicos', 'siglas' => 'DEPA', 'tipo' => 'Circular', 'entidad_superior_id' => null, 'eliminado' => 0],
+            ['nombre' => 'Decanatos, Direcciones de Escuelas', 'siglas' => 'DEC-DIREC', 'tipo' => 'Circular', 'entidad_superior_id' => null, 'eliminado' => 0],
+            ['nombre' => 'Decanatos, Departamentos Académicos', 'siglas' => 'DEC-DEPA', 'tipo' => 'Circular', 'entidad_superior_id' => null, 'eliminado' => 0],
+            ['nombre' => 'Direcciones de Escuelas, Departamentos Académicos', 'siglas' => 'DIREC-DEPA', 'tipo' => 'Circular', 'entidad_superior_id' => null, 'eliminado' => 0],
+            ['nombre' => 'Decanatos, Direcciones de Escuelas, Departamentos Académicos', 'siglas' => 'DEC-DIREC-DEPA', 'tipo' => 'Circular', 'entidad_superior_id' => null, 'eliminado' => 0],
         ];
 
         DB::table('entidades')->insert($entidades);

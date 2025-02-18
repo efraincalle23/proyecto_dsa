@@ -29,41 +29,26 @@
                     <div class="col-12 col-sm-6 col-md-3">
                         <select name="tipo" class="form-control">
                             <option value="">Todos los tipos</option>
-                            <option value="Órgano de Alta Dirección"
-                                {{ request('tipo') == 'Órgano de Alta Dirección' ? 'selected' : '' }}>
-                                Órgano de Alta Dirección
+                            <option value="Oficina" {{ request('tipo') == 'Oficina' ? 'selected' : '' }}>Oficina</option>
+                            <option value="Escuela" {{ request('tipo') == 'Escuela' ? 'selected' : '' }}>Escuela</option>
+                            <option value="Dirección" {{ request('tipo') == 'Dirección' ? 'selected' : '' }}>Dirección
                             </option>
-                            <option value="Órgano Especial" {{ request('tipo') == 'Órgano Especial' ? 'selected' : '' }}>
-                                Órgano Especial
-                            </option>
-                            <option value="Órgano de Asesoramiento"
-                                {{ request('tipo') == 'Órgano de Asesoramiento' ? 'selected' : '' }}>
-                                Órgano de Asesoramiento
-                            </option>
-                            <option value="Órgano de Apoyo" {{ request('tipo') == 'Órgano de Apoyo' ? 'selected' : '' }}>
-                                Órgano de Apoyo
-                            </option>
-                            <option value="Unidad" {{ request('tipo') == 'Unidad' ? 'selected' : '' }}>
-                                Unidad
-                            </option>
-                            <option value="Facultad" {{ request('tipo') == 'Facultad' ? 'selected' : '' }}>
-                                Facultad
-                            </option>
+                            <option value="Unidad" {{ request('tipo') == 'Unidad' ? 'selected' : '' }}>Unidad</option>
                             <option value="Escuela Profesional"
-                                {{ request('tipo') == 'Escuela Profesional' ? 'selected' : '' }}>
-                                Escuela Profesional
-                            </option>
-                            <option value="Subentidad" {{ request('tipo') == 'Subentidad' ? 'selected' : '' }}>
-                                Subentidad
+                                {{ request('tipo') == 'Escuela Profesional' ? 'selected' : '' }}>Escuela Profesional
                             </option>
                             <option value="Unidad de Posgrado"
-                                {{ request('tipo') == 'Unidad de Posgrado' ? 'selected' : '' }}>
-                                Unidad de Posgrado
+                                {{ request('tipo') == 'Unidad de Posgrado' ? 'selected' : '' }}>Unidad de Posgrado</option>
+                            <option value="Decanato" {{ request('tipo') == 'Decanato' ? 'selected' : '' }}>Decanato
                             </option>
-                            <option value="Combinado" {{ request('tipo') == 'Combinado' ? 'selected' : '' }}>
-                                Combinado
+                            <option value="Departamento" {{ request('tipo') == 'Departamento' ? 'selected' : '' }}>
+                                Departamento</option>
+                            <option value="Circular" {{ request('tipo') == 'Circular' ? 'selected' : '' }}>Circular
                             </option>
+                            <option value="Otro" {{ request('tipo') == 'Otro' ? 'selected' : '' }}>Otro</option>
+
                         </select>
+
                     </div>
                     <div class="col-12 col-sm-6 col-md-3">
                         <div class="d-flex gap-2">
@@ -150,47 +135,48 @@
                                                 <div class="form-group">
                                                     <label for="tipo">Tipo</label>
                                                     <select class="form-control" id="tipo" name="tipo" required>
-                                                        <option value="Órgano de Alta Dirección"
-                                                            {{ $entidad->tipo == 'Órgano de Alta Dirección' ? 'selected' : '' }}>
-                                                            Órgano de Alta Dirección
+                                                        <option value="Oficina"
+                                                            {{ $entidad->tipo == 'Oficina' ? 'selected' : '' }}>
+                                                            Oficina
                                                         </option>
-                                                        <option value="Órgano Especial"
-                                                            {{ $entidad->tipo == 'Órgano Especial' ? 'selected' : '' }}>
-                                                            Órgano Especial
+                                                        <option value="Escuela"
+                                                            {{ $entidad->tipo == 'Escuela' ? 'selected' : '' }}>
+                                                            Escuela
                                                         </option>
-                                                        <option value="Órgano de Asesoramiento"
-                                                            {{ $entidad->tipo == 'Órgano de Asesoramiento' ? 'selected' : '' }}>
-                                                            Órgano de Asesoramiento
-                                                        </option>
-                                                        <option value="Órgano de Apoyo"
-                                                            {{ $entidad->tipo == 'Órgano de Apoyo' ? 'selected' : '' }}>
-                                                            Órgano de Apoyo
+                                                        <option value="Dirección"
+                                                            {{ $entidad->tipo == 'Dirección' ? 'selected' : '' }}>
+                                                            Dirección
                                                         </option>
                                                         <option value="Unidad"
                                                             {{ $entidad->tipo == 'Unidad' ? 'selected' : '' }}>
                                                             Unidad
                                                         </option>
-                                                        <option value="Facultad"
-                                                            {{ $entidad->tipo == 'Facultad' ? 'selected' : '' }}>
-                                                            Facultad
-                                                        </option>
                                                         <option value="Escuela Profesional"
                                                             {{ $entidad->tipo == 'Escuela Profesional' ? 'selected' : '' }}>
                                                             Escuela Profesional
-                                                        </option>
-                                                        <option value="Subentidad"
-                                                            {{ $entidad->tipo == 'Subentidad' ? 'selected' : '' }}>
-                                                            Subentidad
                                                         </option>
                                                         <option value="Unidad de Posgrado"
                                                             {{ $entidad->tipo == 'Unidad de Posgrado' ? 'selected' : '' }}>
                                                             Unidad de Posgrado
                                                         </option>
-                                                        <option value="Combinado"
-                                                            {{ $entidad->tipo == 'Combinado' ? 'selected' : '' }}>
-                                                            Combinado
+                                                        <option value="Decanato"
+                                                            {{ $entidad->tipo == 'Decanato' ? 'selected' : '' }}>
+                                                            Decanato
+                                                        </option>
+                                                        <option value="Departamento"
+                                                            {{ $entidad->tipo == 'Departamento' ? 'selected' : '' }}>
+                                                            Departamento
+                                                        </option>
+                                                        <option value="Circular"
+                                                            {{ $entidad->tipo == 'Circular' ? 'selected' : '' }}>
+                                                            Circular
+                                                        </option>
+                                                        <option value="Otro"
+                                                            {{ $entidad->tipo == 'Otro' ? 'selected' : '' }}>
+                                                            Circular
                                                         </option>
                                                     </select>
+
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="entidad_superior_id">Entidad Superior</label>
@@ -304,17 +290,18 @@
                         <div class="form-group">
                             <label for="tipo">Tipo</label>
                             <select class="form-control" id="tipo" name="tipo" required>
-                                <option value="Órgano de Alta Dirección">Órgano de Alta Dirección</option>
-                                <option value="Órgano Especial">Órgano Especial</option>
-                                <option value="Órgano de Asesoramiento">Órgano de Asesoramiento</option>
-                                <option value="Órgano de Apoyo">Órgano de Apoyo</option>
+                                <option value="Oficina">Oficina</option>
+                                <option value="Escuela">Escuela</option>
+                                <option value="Dirección">Dirección</option>
                                 <option value="Unidad">Unidad</option>
-                                <option value="Facultad">Facultad</option>
                                 <option value="Escuela Profesional">Escuela Profesional</option>
-                                <option value="Subentidad">Subentidad</option>
                                 <option value="Unidad de Posgrado">Unidad de Posgrado</option>
-                                <option value="Combinado">Combinado</option>
+                                <option value="Decanato">Decanato</option>
+                                <option value="Departamento">Departamento</option>
+                                <option value="Circular">Circular</option>
+                                <option value="Otro">Otro</option>
                             </select>
+
                         </div>
                         <div class="form-group">
                             <label for="entidad_superior_id">Entidad Superior</label>

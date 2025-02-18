@@ -271,19 +271,19 @@ $query->where('eliminado', false);
                 $destinoTexto = implode(", ", $request->destinos);
 
                 if ($destinoTexto == "Decanatos") {
-                    $entidadId = 132;
-                } elseif ($destinoTexto == "Direcciones de Escuelas") {
-                    $entidadId = 133;
-                } elseif ($destinoTexto == "Departamentos Académicos") {
-                    $entidadId = 134;
-                } elseif ($destinoTexto == "Decanatos, Direcciones de Escuelas") {
-                    $entidadId = 135;
-                } elseif ($destinoTexto == "Decanatos, Departamentos Académicos") {
-                    $entidadId = 136;
-                } elseif ($destinoTexto == "Direcciones de Escuelas, Departamentos Académicos") {
                     $entidadId = 137;
-                } elseif ($destinoTexto == "Decanatos, Direcciones de Escuelas, Departamentos Académicos") {
+                } elseif ($destinoTexto == "Direcciones de Escuelas") {
                     $entidadId = 138;
+                } elseif ($destinoTexto == "Departamentos Académicos") {
+                    $entidadId = 139;
+                } elseif ($destinoTexto == "Decanatos, Direcciones de Escuelas") {
+                    $entidadId = 140;
+                } elseif ($destinoTexto == "Decanatos, Departamentos Académicos") {
+                    $entidadId = 141;
+                } elseif ($destinoTexto == "Direcciones de Escuelas, Departamentos Académicos") {
+                    $entidadId = 142;
+                } elseif ($destinoTexto == "Decanatos, Direcciones de Escuelas, Departamentos Académicos") {
+                    $entidadId = 143;
                 }
 
 
@@ -476,13 +476,13 @@ $query->where('eliminado', false);
                 $destinoTexto = implode(", ", $request->destinos);
 
                 $entidadId = match ($destinoTexto) {
-                    "Decanatos" => 132,
-                    "Direcciones de Escuelas" => 133,
-                    "Departamentos Académicos" => 134,
-                    "Decanatos, Direcciones de Escuelas" => 135,
-                    "Decanatos, Departamentos Académicos" => 136,
-                    "Direcciones de Escuelas, Departamentos Académicos" => 137,
-                    "Decanatos, Direcciones de Escuelas, Departamentos Académicos" => 138,
+                    "Decanatos" => 137,
+                    "Direcciones de Escuelas" => 138,
+                    "Departamentos Académicos" => 139,
+                    "Decanatos, Direcciones de Escuelas" => 140,
+                    "Decanatos, Departamentos Académicos" => 141,
+                    "Direcciones de Escuelas, Departamentos Académicos" => 142,
+                    "Decanatos, Direcciones de Escuelas, Departamentos Académicos" => 143,
                     default => null,
                 };
 
@@ -680,13 +680,13 @@ $query->where('eliminado', false);
                 $destinoTexto = implode(", ", $request->destinos);
 
                 $entidadId = match ($destinoTexto) {
-                    "Decanatos" => 132,
-                    "Direcciones de Escuelas" => 133,
-                    "Departamentos Académicos" => 134,
-                    "Decanatos, Direcciones de Escuelas" => 135,
-                    "Decanatos, Departamentos Académicos" => 136,
-                    "Direcciones de Escuelas, Departamentos Académicos" => 137,
-                    "Decanatos, Direcciones de Escuelas, Departamentos Académicos" => 138,
+                    "Decanatos" => 137,
+                    "Direcciones de Escuelas" => 138,
+                    "Departamentos Académicos" => 139,
+                    "Decanatos, Direcciones de Escuelas" => 140,
+                    "Decanatos, Departamentos Académicos" => 141,
+                    "Direcciones de Escuelas, Departamentos Académicos" => 142,
+                    "Decanatos, Direcciones de Escuelas, Departamentos Académicos" => 143,
                     default => null,
                 };
 
