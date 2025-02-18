@@ -64,7 +64,6 @@
 
         @role('Administrador|Jefe DSA')
             @if (Auth::user()->rol == 'Administrador' || Auth::user()->rol == 'Jefe DSA')
-                <a href="/users"><i class="bi bi-people-fill"></i> Usuarios</a>
                 <!-- Submenú de usuarios -->
                 <div class="sidebar-item">
                     <a href="#" class="toggle-submenu" data-target="#submenu-users">
