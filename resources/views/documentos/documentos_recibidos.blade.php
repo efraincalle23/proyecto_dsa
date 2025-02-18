@@ -11,10 +11,12 @@
                 <a href="{{ url('/exportar-recibidos') }}" class="btn btn-success">
                     <i class="bi bi-file-earmark-excel-fill"></i> Exportar a Excel
                 </a>
-                <!-- Botón para abrir el modal de creación -->
-                <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#createModal">
-                    Nuevo Documento
-                </button>
+                @role('Administrador|Jefe DSA|Secretaria')
+                    <!-- Botón para abrir el modal de creación -->
+                    <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#createModal">
+                        Nuevo Documento
+                    </button>
+                @endrole
             </div>
         </div>
 

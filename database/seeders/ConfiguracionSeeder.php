@@ -16,7 +16,7 @@ class ConfiguracionSeeder extends Seeder
     {
         DB::table('configuraciones')->insert([
             'clave' => 'numero_oficio_inicio',
-            'valor' => '100',  // El valor inicial de los números de oficio
+            'valor' => '1',  // El valor inicial de los números de oficio
         ]);
     }
 }
