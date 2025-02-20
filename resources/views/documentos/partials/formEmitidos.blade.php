@@ -53,16 +53,19 @@
     @enderror
 </div>
 
+
 <!-- Entidad -->
-<div class="mb-3" id="entidad-container">
-    <label for="entidad_id">Entidad Receptora</label><br>
-    <select id="entidad_id" name="entidad_id" class="js-example-basic-single">
-        @foreach ($entidades as $entidad)
-            <option value="{{ $entidad->id }}"
-                {{ old('entidad_id', $documento->entidad_id ?? '') == $entidad->id ? 'selected' : '' }}>
-                {{ $entidad->nombre }}</option>
-        @endforeach
-    </select>
+
+<!-- Entidad -->
+<!-- Entidad -->
+<div class="mb-3 position-relative entidad-container">
+    <label for="entidad_search">Entidad Receptora</label>
+    <input type="text" class="form-control entidad_search" placeholder="Busca una entidad...">
+    <input type="hidden" class="entidad_id" name="entidad_id">
+
+    <!-- Dropdown de resultados -->
+    <div class="dropdown-menu w-100 entidad_dropdown" style="display: none; max-height: 200px; overflow-y: auto;"></div>
+
     @error('entidad_id')
         <div class="text-danger">{{ $message }}</div>
     @enderror

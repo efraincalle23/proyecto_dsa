@@ -68,7 +68,7 @@ class HistorialDocumentoController extends AuthenticatedController
         return view('historicos.index', compact('historicos', 'users', 'historial'));
     }
 
-    public function asignar(Request $request, $idDocumento)
+    public function asignar4(Request $request, $idDocumento)
     {
         $request->validate([
             'destinatario' => 'nullable|exists:users,id',
@@ -117,11 +117,65 @@ class HistorialDocumentoController extends AuthenticatedController
             return redirect()->route('documentos.documentos_recibidos')->with('error', 'Error al asignar destinatario: ' . $e->getMessage());
         }
     }
+
+    public function asignar(Request $request, $idDocumento)
+    {
+        $request->validate([
+            'destinatario' => 'nullable|exists:users,id',
+            'estado_nuevo' => 'required|string',
+            'observaciones' => 'nullable|string|max:255',
+        ]);
+
+        try {
+            $origen = 'recibido'; // Puedes cambiar esto según la lógica que desees
+
+            // Verificar que el documento existe
+            $documento = DocumentoRecibido::findOrFail($idDocumento);
+
+            // Obtener el último estado del histórico (si existe)
+            $ultimoHistorico = HistorialDocumento::where('id_documento', $idDocumento)->latest('fecha_cambio')->first();
+            $estadoAnterior = $ultimoHistorico ? $ultimoHistorico->estado_nuevo : 'pendiente';
+
+            // Verificar que estado_anterior no sea NULL
+            if (!$estadoAnterior) {
+                $estadoAnterior = 'recibido';
+            }
+
+            // Determinar el destinatario
+            $destinatarioId = $request->destinatario_id ?? request()->user()->id;
+
+            // Crear un nuevo registro en `historicos`
+            $historico = HistorialDocumento::create([
+                'id_documento' => $idDocumento, // ID del documento asociado
+                'id_usuario' => request()->user()->id, // Usuario que realiza la asignación
+                'destinatario' => $destinatarioId, // Usuario destinatario
+                'estado_anterior' => $estadoAnterior, // Estado anterior o predeterminado
+                'estado_nuevo' => $request->estado_nuevo, // Estado nuevo
+                'fecha_cambio' => now(), // Fecha del cambio
+                'observaciones' => $request->observaciones, // Observaciones opcionales
+                'origen' => $origen, // Especificamos el origen como "emitido"
+            ]);
+
+            // Obtener el destinatario
+            $destinatario = User::find($destinatarioId);
+
+            // Enviar la notificación al destinatario
+            if ($destinatario) {
+                $destinatario->notify(new DocumentoRecibidoAsignado($historico));
+            }
+
+            return redirect()->route('documentos_recibidos.index')->with('success', 'Asignación registrada correctamente.');
+        } catch (\Exception $e) {
+            return redirect()->route('documentos.documentos_recibidos')->with('error', 'Error al asignar destinatario: ' . $e->getMessage());
+        }
+    }
+
+
     public function asignarEmitidos(Request $request, $idDocumento)
     {
         $request->validate([
             'destinatario' => 'nullable|exists:users,id',
-            'estado_nuevo' => 'required|string|in:por firma,observado,en proceso,otro',
+            'estado_nuevo' => 'required|string',
             'observaciones' => 'nullable|string|max:255',
         ]);
 
@@ -141,12 +195,14 @@ class HistorialDocumentoController extends AuthenticatedController
             }
             $origen = 'emitido'; // Puedes cambiar esto según la lógica que desees
 
+            // Determinar el destinatario
+            $destinatarioId = $request->destinatario_id ?? request()->user()->id;
 
             // Crear un nuevo registro en `historicos`
             $historico = HistorialDocumento::create([
                 'id_documento' => $idDocumento,//$request->numero_oficio, // ID del documento asociado
                 'id_usuario' => request()->user()->id, // Usuario que realiza la asignación
-                'destinatario' => $request->destinatario_id, // Usuario destinatario
+                'destinatario' => $destinatarioId, // Usuario destinatario
                 'estado_anterior' => $estadoAnterior, // Estado anterior o predeterminado
                 'estado_nuevo' => $request->estado_nuevo, // Estado nuevo
                 'fecha_cambio' => now(), // Fecha del cambio
@@ -156,7 +212,7 @@ class HistorialDocumentoController extends AuthenticatedController
             ]);
 
             // Obtener el destinatario
-            $destinatario = User::find($request->destinatario_id);
+            $destinatario = User::find($destinatarioId);
 
             // Enviar la notificación al destinatario
             if ($destinatario) {

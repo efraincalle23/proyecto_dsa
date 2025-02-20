@@ -68,9 +68,6 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
-
-
-
         <!-- Resto del código de la vista... -->
         {{-- Filtros de búsqueda --}}
         <div>
@@ -91,42 +88,29 @@
                     <div class="col-md-3">
                         <select name="estado_nuevo" class="form-select">
                             <option value="">-- Seleccionar Estado --</option>
-                            <option value="creado" {{ request('estado_nuevo') == 'creado' ? 'selected' : '' }}>Creado
-                            </option>
-                            <option value="actualizado" {{ request('estado_nuevo') == 'Actualizado' ? 'selected' : '' }}>
-                                Actualizado</option>
                             <option value="por firma" {{ request('estado_nuevo') == 'por firma' ? 'selected' : '' }}>Por
-                                firma
-                            </option>
+                                firma</option>
                             <option value="firmado" {{ request('estado_nuevo') == 'firmado' ? 'selected' : '' }}>Firmado
                             </option>
-                            <option value="en revisión" {{ request('estado_nuevo') == 'en revisión' ? 'selected' : '' }}>En
-                                revisión</option>
-                            <option value="en proceso" {{ request('estado_nuevo') == 'en proceso' ? 'selected' : '' }}>En
-                                proceso</option>
                             <option value="observado" {{ request('estado_nuevo') == 'observado' ? 'selected' : '' }}>
-                                Observado
-                            </option>
-                            <option value="devuelto" {{ request('estado_nuevo') == 'devuelto' ? 'selected' : '' }}>Devuelto
-                            </option>
+                                Observado</option>
                             <option value="por respuesta"
-                                {{ request('estado_nuevo') == 'por respuesta' ? 'selected' : '' }}>
-                                Por respuesta</option>
-                            <option value="atendido" {{ request('estado_nuevo') == 'atendido' ? 'selected' : '' }}>Atendido
-                            </option>
+                                {{ request('estado_nuevo') == 'por respuesta' ? 'selected' : '' }}>Por respuesta</option>
+                            <option value="para oficio" {{ request('estado_nuevo') == 'para oficio' ? 'selected' : '' }}>
+                                Para oficio</option>
+                            <option value="atendido" {{ request('estado_nuevo') == 'atendido' ? 'selected' : '' }}>
+                                Atendido</option>
                             <option value="archivado" {{ request('estado_nuevo') == 'archivado' ? 'selected' : '' }}>
-                                Archivado
-                            </option>
-                            <option value="vencido" {{ request('estado_nuevo') == 'vencido' ? 'selected' : '' }}>Vencido
-                            </option>
-                            <option value="otro" {{ request('estado_nuevo') == 'otro' ? 'selected' : '' }}>Otro</option>
-                            <option value="Recibido" {{ request('estado_nuevo') == 'Creado' ? 'selected' : '' }}>Creado
-                            </option>
+                                Archivado</option>
+
                             <option value="Eliminado" {{ request('estado_nuevo') == 'Eliminado' ? 'selected' : '' }}>
                                 Eliminado
                             </option>
+                            <option value="otro" {{ request('estado_nuevo') == 'otro' ? 'selected' : '' }}>Otro</option>
                         </select>
+
                     </div>
+
                     <div class="col-12 col-md-2">
                         <div class="d-flex gap-2">
                             <button type="submit" class="btn btn-secondary w-100">
@@ -218,18 +202,48 @@
                                     @php
                                         // Ordenar los historiales por la fecha de registro en orden descendente (más reciente primero)
                                         $ultimoHistorial = $historicosDocumento->sortByDesc('fecha_registro')->first();
-                                    @endphp
-                                    <!-- Mostrar el estado_nuevo del historial más reciente -->
+                                        $estado = $ultimoHistorial->estado_nuevo ?? $ultimoHistorial->estado_anterior;
 
-                                    <button type="button" class="btn btn-outline-secondary"
+                                        // Definir clases de Bootstrap según el estado con btn-outline
+                                        $coloresEstados = [
+                                            'por firma' => 'btn-outline-warning',
+                                            'firmado' => 'btn-outline-success',
+                                            'observado' => 'btn-outline-danger',
+                                            'por respuesta' => 'btn-outline-primary',
+                                            'para oficio' => 'btn-outline-info',
+                                            'atendido' => 'btn-outline-success',
+                                            'archivado' => 'btn-outline-secondary',
+                                            'Eliminado' => 'btn-outline-dark',
+                                            'Restaurado' => 'btn-outline-success',
+                                            'Creado' => 'btn-outline-primary',
+                                            'otro' => 'btn-outline-secondary',
+                                        ];
+
+                                        // Obtener la clase según el estado, si no existe, usar btn-outline-secondary
+                                        $claseBoton = $coloresEstados[$estado] ?? 'btn-outline-secondary';
+                                    @endphp
+
+                                    <!-- Botón con color dinámico -->
+                                    <button type="button" class="btn {{ $claseBoton }}"
                                         style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;">
-                                        {{ $ultimoHistorial->estado_nuevo ?? 'Sin cambio' }}
+                                        {{ $estado }}
                                     </button>
                                 @endif
+
 
                             </td>
                             <td>
                                 <!--Estado ojito-->
+
+                                @if ($documento->eliminado)
+                                @else
+                                    @role('Administrador|Jefe DSA|Secretaria')
+                                        <button type="button" title="Haz clic para asignar" class="btn btn-primary btn-sm"
+                                            data-bs-toggle="modal" data-bs-target="#estadoModal{{ $documento->id }}">
+                                            <i class="bi bi-pencil-fill"></i>
+                                        </button>
+                                    @endrole
+                                @endif
                                 @php
                                     $historicosDocumento = $documento->HistorialDocumento ?? collect(); // Evitar error en caso de no haber historiales
                                 @endphp
@@ -243,28 +257,48 @@
                                         $ultimoHistorial = $historicosDocumento->sortByDesc('fecha_registro')->first();
                                     @endphp
 
+                                    @php
+                                        $contenidoPopover = '';
 
+                                        if ($ultimoHistorial->destinatarioUser) {
+                                            $contenidoPopover =
+                                                ($ultimoHistorial->usuario->nombre ?? 'N/A') .
+                                                ' ' .
+                                                ($ultimoHistorial->usuario->apellido ?? '') .
+                                                ' derivó a ' .
+                                                ($ultimoHistorial->destinatarioUser->nombre .
+                                                    ' ' .
+                                                    $ultimoHistorial->destinatarioUser->apellido);
+
+                                            if ($ultimoHistorial->estado_nuevo) {
+                                                $contenidoPopover .=
+                                                    ' (' .
+                                                    ($ultimoHistorial->estado_nuevo ?? 'S/A') .
+                                                    ') - Observ: ' .
+                                                    ($ultimoHistorial->observaciones ?? 'S/O');
+                                            }
+                                        } else {
+                                            $contenidoPopover =
+                                                ($ultimoHistorial->estado_nuevo ?? 'Sin asignar |') .
+                                                ' ' .
+                                                ($ultimoHistorial->estado_anterior ?? '') .
+                                                ' por ' .
+                                                ($ultimoHistorial->usuario->apellido ?? '') .
+                                                ' ' .
+                                                ($ultimoHistorial->usuario->nombre ?? '');
+                                        }
+                                    @endphp
                                     <button type="button" class="btn btn-success btn-sm popover-trigger"
-                                        title="Ultimo estado"
-                                        data-bs-content="   
-                                @if ($ultimoHistorial->destinatarioUser) {{ $ultimoHistorial->usuario->nombre ?? 'N/A' }}
-                                    {{ $ultimoHistorial->usuario->apellido ?? '' }} derivó a
-                                    {{ $ultimoHistorial->destinatarioUser->nombre }} {{ $ultimoHistorial->destinatarioUser->apellido }}  
-                                    @if ($ultimoHistorial->estado_nuevo)
-                                    ({{ $ultimoHistorial->estado_nuevo ?? 'S/A' }})-Observ: 
-                                    {{ $ultimoHistorial->observaciones ?? 'S/O' }} @endif
-@else
-{{ $ultimoHistorial->estado_nuevo ?? 'S/A' }} por 
-                                    {{ $ultimoHistorial->usuario->apellido }}
-                                    {{ $ultimoHistorial->usuario->nombre }} @endif">
+                                        title="Ultimo estado" data-bs-content="{{ $contenidoPopover }}">
                                         <i class="bi bi-eye-fill"></i>
                                     </button>
                                 @endif
 
                             </td>
-                            <td>@php
-                                $historicosDocumento = $documento->HistorialDocumento ?? collect(); // Evitar error en caso de no haber historiales
-                            @endphp
+                            <td>
+                                @php
+                                    $historicosDocumento = $documento->HistorialDocumento ?? collect(); // Evitar error en caso de no haber historiales
+                                @endphp
 
                                 <!-- Historial del Documento -->
                                 @if ($historicosDocumento->isEmpty())
@@ -290,24 +324,26 @@
                                     <i class="bi bi-pencil-square"></i> <!-- Ícono de editar -->
                                 </button>
 
-                                <!-- Botón para abrir el modal de eliminación -->
-                                @if ($documento->eliminado)
-                                @else
-                                    <button type="button" title="Haz clic para eliminar" class="btn btn-danger btn-sm"
-                                        data-bs-toggle="modal" data-bs-target="#deleteModal-{{ $documento->id }}">
-                                        <i class="bi bi-x-circle-fill"></i>
-                                    </button>
-                                @endif
-                                <!-- Mostrar opción de restaurar si está eliminado -->
-                                @if ($documento->eliminado)
-                                    <form action="{{ route('documentos_emitidos.restore', $documento->id) }} "
-                                        method="POST" class="d-inline">
-                                        @csrf
-                                        @method('PUT')
-                                        <button type="submit" title="Haz clic para restaurar"
-                                            class="btn btn-warning btn-sm"><i class="bi bi-arrow-repeat"></i></button>
-                                    </form>
-                                @endif
+                                @role('Administrador|Jefe DSA|Secretaria')
+                                    <!-- Botón para abrir el modal de eliminación -->
+                                    @if ($documento->eliminado)
+                                    @else
+                                        <button type="button" title="Haz clic para eliminar" class="btn btn-danger btn-sm"
+                                            data-bs-toggle="modal" data-bs-target="#deleteModal-{{ $documento->id }}">
+                                            <i class="bi bi-x-circle-fill"></i>
+                                        </button>
+                                    @endif
+                                    <!-- Mostrar opción de restaurar si está eliminado -->
+                                    @if ($documento->eliminado)
+                                        <form action="{{ route('documentos_emitidos.restore', $documento->id) }} "
+                                            method="POST" class="d-inline">
+                                            @csrf
+                                            @method('PUT')
+                                            <button type="submit" title="Haz clic para restaurar"
+                                                class="btn btn-warning btn-sm"><i class="bi bi-arrow-repeat"></i></button>
+                                        </form>
+                                    @endif
+                                @endrole
 
                                 @if ($documento->eliminado)
                                 @else
@@ -321,14 +357,16 @@
                                     <i class="bi bi-clock-history"></i>
                                 </button>
                                 <!--boton respuesta-->
-                                <button type="button" title="Responder a este documento" class="btn btn-warning btn-sm"
-                                    data-bs-toggle="modal" data-bs-target="#respuestaModal-{{ $documento->id }}">
-                                    <i class="bi bi-reply-all-fill"></i>
-                                </button>
+                                @role('Administrador|Jefe DSA|Secretaria')
+                                    <button type="button" title="Responder a este documento" class="btn btn-warning btn-sm"
+                                        data-bs-toggle="modal" data-bs-target="#respuestaModal-{{ $documento->id }}">
+                                        <i class="bi bi-reply-all-fill"></i>
+                                    </button>
+                                @endrole
                                 @role('Administrador|Jefe DSA')
                                     <!-- Botón que activa el modal -->
-                                    <button type="button" title="Eliminar definitivamente" class="btn btn-danger btn-sm" data-bs-toggle="modal"
-                                        data-bs-target="#confirmDeleteModal-{{ $documento->id }}">
+                                    <button type="button" title="Eliminar definitivamente" class="btn btn-danger btn-sm"
+                                        data-bs-toggle="modal" data-bs-target="#confirmDeleteModal-{{ $documento->id }}">
                                         <i class="bi bi-trash"></i>
                                     </button>
 
@@ -579,7 +617,7 @@
                         <!-- Modal de Asignar -->
                         <div class="modal fade" id="asignarModal{{ $documento->id }}" tabindex="-1"
                             aria-labelledby="asignarModalLabel{{ $documento->id }}" aria-hidden="true">
-                            <div class="modal-dialog">
+                            <div class="modal-dialog modal-lg">
                                 <form method="POST" action="{{ route('historial.asignarEmitidos', $documento->id) }}">
                                     @csrf
                                     <div class="modal-content">
@@ -591,48 +629,119 @@
                                                 aria-label="Cerrar"></button>
                                         </div>
                                         <div class="modal-body">
-                                            <div class="mb-3">
-                                                <label class="form-label">Tipo de Documento</label>
-                                                <input type="text" class="form-control"
-                                                    value="{{ $documento->tipo }}" disabled>
+                                            <div class="card mb-4 shadow-sm">
+                                                <div class="card-header bg-secondary text-white">
+                                                    <h6 class="mb-0">
+                                                        <i class="bi bi-file-earmark-text-fill me-2"></i> Resumen del
+                                                        Documento
+                                                    </h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <ul class="list-group list-group-flush">
+                                                        <li class="list-group-item">
+                                                            <i class="bi bi-card-text me-2 text-primary"></i>
+                                                            <strong>Nombre del Documento:</strong>
+                                                            <span
+                                                                class="text-muted">{{ ucfirst($documento->nombre_doc) }}</span>
+                                                        </li>
+                                                        <li class="list-group-item">
+                                                            <i class="bi bi-person-fill me-2 text-primary"></i>
+                                                            <strong>Para:</strong>
+                                                            <span class="text-muted">{{ $documento->destino }}</span>
+                                                        </li>
+                                                        <li class="list-group-item">
+                                                            <i class="bi bi-building me-2 text-primary"></i>
+                                                            <strong>Entidad:</strong>
+                                                            <span
+                                                                class="text-muted">{{ $documento->entidad->nombre ?? 'Sin entidad asignada' }}</span>
+                                                        </li>
+                                                        <li class="list-group-item">
+                                                            <i class="bi bi-calendar-event-fill me-2 text-primary"></i>
+                                                            <strong>Fecha de Emisión:</strong>
+                                                            <span
+                                                                class="text-muted">{{ $documento->fecha_recibido }}</span>
+                                                        </li>
+                                                        <li class="list-group-item">
+                                                            <i class="bi bi-envelope-fill me-2 text-primary"></i>
+                                                            <strong>Asunto:</strong>
+                                                            <span class="text-muted">{{ $documento->asunto }}</span>
+                                                        </li>
+
+                                                        <li class="list-group-item">
+                                                            <i class="bi bi-chat-left-dots-fill me-2 text-primary"></i>
+                                                            <strong>Observaciones:</strong>
+                                                            <span
+                                                                class="text-muted">{{ $documento->observaciones ?? 'Sin observaciones' }}</span>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-md-6 mb-3">
+                                                    <label class="form-label">Destinatario</label>
+                                                    <select name="destinatario_id" class="form-select" required>
+                                                        <option value="">Seleccione un destinatario</option>
+                                                        @foreach ($users as $user)
+                                                            @if ($user->id !== auth()->id())
+                                                                <option value="{{ $user->id }}">{{ $user->nombre }}
+                                                                    {{ $user->apellido }}</option>
+                                                            @endif
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-6 mb-3">
+                                                    <label class="form-label">Estado Nuevo</label>
+                                                    <select name="estado_nuevo" class="form-select" required>
+                                                        <option value="por firma">Por firma</option>
+                                                        <option value="firmado">Firmado</option>
+                                                        <option value="observado">Observado</option>
+                                                        <option value="por respuesta">Por respuesta</option>
+                                                        <option value="para oficio">Para oficio</option>
+                                                        <option value="atendido">Atendido</option>
+                                                        <option value="archivado">Archivado</option>
+                                                        <option value="otro">Otro</option>
+                                                    </select>
+                                                </div>
                                             </div>
                                             <div class="mb-3">
-                                                <label class="form-label" for="numero_oficio">Número de Oficio</label>
-                                                <input type="text" name="numero_oficio" id="numero_oficio"
-                                                    class="form-control" value="{{ $documento->numero_oficio }}"
-                                                    disabled>
+                                                <label class="form-label">Observaciones</label>
+                                                <textarea name="observaciones" class="form-control" rows="3"></textarea>
                                             </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Remitente</label>
-                                                <input type="text" class="form-control"
-                                                    value="{{ $documento->destino }}" disabled>
-                                            </div>
-                                            <div class="mb-3">
-                                                <label class="form-label">Destinatario</label>
-                                                <select name="destinatario_id" class="form-select" required>
-                                                    <option value="">Seleccione un destinatario</option>
-                                                    @foreach ($users as $user)
-                                                        @if ($user->id !== auth()->id())
-                                                            <option value="{{ $user->id }}">{{ $user->nombre }}
-                                                                {{ $user->apellido }}</option>
-                                                        @endif
-                                                    @endforeach
-                                                </select>
-                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary"
+                                                data-bs-dismiss="modal">Cerrar</button>
+                                            <button type="submit" class="btn btn-primary">Asignar</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="modal fade" id="estadoModal{{ $documento->id }}" tabindex="-1"
+                            aria-labelledby="estadoModalLabel{{ $documento->id }}" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <form method="POST" action="{{ route('historial.asignarEmitidos', $documento->id) }}">
+                                    @csrf
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="asignarModalLabel{{ $documento->id }}">
+                                                Cambiar estado a {{ ucfirst($documento->nombre_doc) }}</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                aria-label="Cerrar"></button>
+                                        </div>
+                                        <div class="modal-body">
+
                                             <div class="mb-3">
                                                 <label class="form-label">Estado Nuevo</label>
                                                 <select name="estado_nuevo" class="form-select" required>
-                                                    <option value="creado">Creado</option>
-                                                    <option value="actualizado">Actualizado</option>
                                                     <option value="por firma">Por firma</option>
                                                     <option value="firmado">Firmado</option>
-                                                    <option value="en revisión">En revisión</option>
-                                                    <option value="en proceso">En proceso</option>
                                                     <option value="observado">Observado</option>
-                                                    <option value="devuelto">Devuelto</option>
+                                                    <option value="por respuesta">Por respuesta</option>
+                                                    <option value="para oficio">Para oficio</option>
                                                     <option value="atendido">Atendido</option>
                                                     <option value="archivado">Archivado</option>
-                                                    <option value="vencido">Vencido</option>
                                                     <option value="otro">Otro</option>
                                                 </select>
                                             </div>
@@ -729,82 +838,100 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
 
-    <script>
-        function toggleElements(modalId) {
-            var modal = document.getElementById(modalId);
-            if (!modal) return;
-
-            var tipo = modal.querySelector("#tipo");
-            var checkboxes = modal.querySelector("#checkbox-container");
-            var destino = modal.querySelector("#destino-container");
-            var entidad = modal.querySelector("#entidad-container");
-
-            if (!tipo) return; // Evitar errores si el select no existe en el modal
-
-            function actualizarVisibilidad() {
-                if (tipo.value === "oficio_circular") {
-                    checkboxes.style.display = "block";
-                    destino.style.display = "none";
-                    entidad.style.display = "none";
-                } else {
-                    checkboxes.style.display = "none";
-                    destino.style.display = "block";
-                    entidad.style.display = "block";
-                }
-            }
-
-            // Ejecutar al abrir el modal
-            actualizarVisibilidad();
-
-            // Agregar evento cuando cambie el select dentro del modal
-            tipo.addEventListener("change", actualizarVisibilidad);
-
-            // Marcar checkboxes según valores guardados en la base de datos
-            marcarCheckboxesGuardados(modal);
-        }
-
-        function marcarCheckboxesGuardados(modal) {
-            var checkboxes = modal.querySelectorAll("input[name='destinos[]']");
-            var destinosGuardados = JSON.parse(modal.getAttribute("data-destinos") || "[]");
-
-            checkboxes.forEach(function(checkbox) {
-                checkbox.checked = destinosGuardados.includes(checkbox.value);
-            });
-        }
-
-        // Detectar cuando se abre cualquier modal de edición o creación
-        document.addEventListener("shown.bs.modal", function(event) {
-            var modal = event.target;
-            var modalId = modal.id;
-
-            // Si es un modal de edición o de creación
-            if (modalId.startsWith("editModal") || modalId === "createModal") {
-                toggleElements(modalId);
-            }
+    <!--Script Select2-->
+    @php
+        $entidadesArray = $entidades->map(function ($entidad) {
+            return [
+                'id' => $entidad->id,
+                'nombre' => $entidad->nombre,
+                'siglas' => $entidad->siglas,
+            ];
         });
-    </script>
-    <!--script buscar select-->
+    @endphp
 
     <script>
-        $(document).ready(function() {
-            $('#createModal').on('shown.bs.modal', function() {
-                $(this).find('.js-example-basic-single').select2({
-                    width: '100%',
-                    dropdownParent: $(this)
+        // Pasamos los datos de Laravel a JavaScript
+        window.entidades = @json($entidadesArray);
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            function initAutocomplete(modal) {
+                const searchInput = modal.querySelector(".entidad_search");
+                const hiddenInput = modal.querySelector(".entidad_id");
+                const dropdown = modal.querySelector(".entidad_dropdown");
+
+                if (!searchInput || !hiddenInput || !dropdown) return;
+
+                // Mostrar la entidad actual al abrir el modal
+                const entidadSeleccionada = window.entidades.find(e => e.id == hiddenInput.value);
+                if (entidadSeleccionada) {
+                    searchInput.value = `${entidadSeleccionada.nombre} (${entidadSeleccionada.siglas})`;
+                }
+
+                searchInput.addEventListener("input", function() {
+                    const searchTerm = searchInput.value.toLowerCase();
+                    dropdown.innerHTML = ""; // Limpiar opciones previas
+
+                    if (searchTerm.length === 0) {
+                        dropdown.style.display = "none";
+                        return;
+                    }
+
+                    // Filtrar entidades por nombre o siglas
+                    const filteredEntidades = window.entidades.filter(entidad =>
+                        entidad.nombre.toLowerCase().includes(searchTerm) ||
+                        entidad.siglas.toLowerCase().includes(searchTerm)
+                    );
+
+                    if (filteredEntidades.length === 0) {
+                        dropdown.style.display = "none";
+                        return;
+                    }
+
+                    // Crear las opciones de la lista desplegable
+                    filteredEntidades.forEach(entidad => {
+                        const option = document.createElement("div");
+                        option.classList.add("dropdown-item");
+                        option.textContent = `${entidad.nombre} (${entidad.siglas})`;
+                        option.setAttribute("data-id", entidad.id);
+
+                        option.addEventListener("click", function() {
+                            searchInput.value = entidad.nombre + " (" + entidad.siglas +
+                                ")";
+                            hiddenInput.value = entidad
+                                .id; // Guardamos el ID real en el input oculto
+                            dropdown.style.display = "none"; // Ocultamos el dropdown
+                        });
+
+                        dropdown.appendChild(option);
+                    });
+
+                    dropdown.style.display = "block"; // Mostramos la lista desplegable
+                });
+
+                // Ocultar el dropdown si se hace clic fuera
+                document.addEventListener("click", function(event) {
+                    if (!searchInput.contains(event.target) && !dropdown.contains(event.target)) {
+                        dropdown.style.display = "none";
+                    }
+                });
+            }
+
+            // Inicializar el autocompletado cuando se abran los modales
+            document.getElementById("createModal").addEventListener("shown.bs.modal", function() {
+                initAutocomplete(this);
+            });
+
+            document.querySelectorAll("div[id^='editModal-']").forEach(modal => {
+                modal.addEventListener("shown.bs.modal", function() {
+                    initAutocomplete(this);
                 });
             });
 
-            $('div[id^="editModal-"]').on('shown.bs.modal', function() {
-                $(this).find('.js-example-basic-single').select2({
-                    width: '100%',
-                    dropdownParent: $(this)
-                });
-            });
-
-            $('div[id^="respuestaModal-"]').on('shown.bs.modal', function() {
-                $(this).find('.js-example-basic-single').select2({
-                    width: '100%',
-                    dropdownParent: $(this)
+            document.querySelectorAll("div[id^='respuestaModal-']").forEach(modal => {
+                modal.addEventListener("shown.bs.modal", function() {
+                    initAutocomplete(this);
                 });
             });
         });

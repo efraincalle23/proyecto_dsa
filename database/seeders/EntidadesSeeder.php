@@ -224,5 +224,17 @@ class EntidadesSeeder extends Seeder
         ];
 
         DB::table('entidades')->insert($entidades);
+
+        // 2. Insertar órganos especiales
+        DB::table('entidades')->insert([
+            ['nombre' => 'Estudiante', 'siglas' => 'EST', 'tipo' => 'Otro', 'entidad_superior_id' => null, 'eliminado' => false],
+            ['nombre' => 'Docente', 'siglas' => 'DCTE', 'tipo' => 'Otro', 'entidad_superior_id' => null, 'eliminado' => false],
+            ['nombre' => 'Superintendencia Nacional de Educación Superior Universitaria', 'siglas' => 'SUNEDU', 'tipo' => 'Otro', 'entidad_superior_id' => null, 'eliminado' => false],
+            ['nombre' => 'Ministerio de Educación', 'siglas' => 'MINEDU', 'tipo' => 'Otro', 'entidad_superior_id' => null, 'eliminado' => false],
+            ['nombre' => 'Unidad de Planeamiento', 'siglas' => 'UPL', 'tipo' => 'Unidad', 'entidad_superior_id' => null, 'eliminado' => false],
+            ['nombre' => 'Unidad Formuladora', 'siglas' => 'UFOR', 'tipo' => 'Unidad', 'entidad_superior_id' => null, 'eliminado' => false],
+            ['nombre' => 'Unidad de Modernización', 'siglas' => 'UPL', 'tipo' => 'Unidad', 'entidad_superior_id' => null, 'eliminado' => false],
+
+        ]);
     }
 }

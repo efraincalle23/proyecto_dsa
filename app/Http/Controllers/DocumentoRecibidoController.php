@@ -11,6 +11,8 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Models\DocumentoEmitido;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 
 
 
@@ -65,18 +67,15 @@ class DocumentoRecibidoController extends Controller
 
         // Filtrar por estado nuevo
         if ($request->has('estado_nuevo') && $request->estado_nuevo != '') {
-             $query->whereHas('HistorialDocumento', function ($query) use ($request) {
-                 $query->where('origen', 'recibido')
-                     ->where('estado_nuevo', $request->estado_nuevo);
-             });
-         }
-
-       
-
+            $query->whereHas('HistorialDocumento', function ($query) use ($request) {
+                $query->where('origen', 'recibido')
+                    ->where('estado_nuevo', $request->estado_nuevo);
+            });
+        }
 
 
         // Aplicar filtro de 'eliminado' basado en el rol del usuario
-        if ($user->hasRole('Administrador') || $user->hasRole('Jefa DSA')) {
+        if ($user->hasRole('Administrador') || $user->hasRole('Jefa DSA') || $user->hasRole('Secretaria')) {
             // Mostrar todos los documentos, incluidos los eliminados
             // No se aplica filtro de 'eliminado'
         } /*else {
@@ -96,21 +95,29 @@ $query->where('eliminado', false);
     }
     //probndo index
 
+
     private function generarNumeroOficio()
     {
+        // Obtener el número de inicio desde la tabla 'configuraciones'
+        $inicio = DB::table('configuraciones')->where('clave', 'numero_oficio_inicio')->value('valor');
+
         // Obtener el último número de oficio registrado
         $ultimoDocumento = DocumentoEmitido::orderBy('numero_oficio', 'desc')->first();
 
-        // Si no hay registros, empezamos con 001
         if (!$ultimoDocumento) {
-            return '001';
+            // Si no hay documentos previos, empezamos con el número de inicio
+            return str_pad($inicio, 3, '0', STR_PAD_LEFT);
         }
 
-        // Incrementar el último número de oficio
         $ultimoNumero = intval($ultimoDocumento->numero_oficio);
-        $nuevoNumero = str_pad($ultimoNumero + 1, 3, '0', STR_PAD_LEFT);
 
-        return $nuevoNumero;
+        // Si el último número es menor que el número de inicio, empezamos desde ahí
+        if ($ultimoNumero < $inicio) {
+            return str_pad($inicio, 3, '0', STR_PAD_LEFT);
+        }
+
+        // De lo contrario, seguimos con la numeración normal
+        return str_pad($ultimoNumero + 1, 3, '0', STR_PAD_LEFT);
     }
 
 
@@ -126,36 +133,50 @@ $query->where('eliminado', false);
     public function store(Request $request)
     {
         // Validación con mensajes personalizados
-        $request->validate([
-            'numero_oficio' => 'required|string|max:50|unique:documentos_recibidos,numero_oficio,NULL,id,entidad_id,' . $request->entidad_id, // Combinación única de numero_oficio y entidad_id
-            'asunto' => 'required|string|max:255',
-            'fecha_recibido' => 'required|date',
-            'tipo' => 'required',
-            'remitente' => 'required|string|max:100',
-            'entidad_id' => 'required|exists:entidades,id',
-            'observaciones' => 'nullable|string|max:200',
-            'formato_documento' => 'nullable|in:virtual,fisico', // Validación para el formato de documento
-            'respondido_con' => 'nullable|exists:documentos_emitidos,numero_oficio', // Validación para relacionar con un documento emitido
-        ], [
-            'numero_oficio.required' => 'El campo Número de Oficio es obligatorio.',
-            'numero_oficio.max' => 'El Número de Oficio no puede superar los 50 caracteres.',
-            'numero_oficio.unique' => 'El Número de Oficio ya está registrado para esta entidad.',
-            'asunto.required' => 'El campo Asunto es obligatorio.',
-            'asunto.max' => 'El Asunto no puede superar los 255 caracteres.',
-            'fecha_recibido.required' => 'El campo Fecha Recibido es obligatorio.',
-            'fecha_recibido.date' => 'El campo Fecha Recibido debe ser una fecha válida.',
-            'tipo.required' => 'El campo Tipo es obligatorio.',
-            'tipo.in' => 'El campo Tipo debe ser uno de los siguientes valores: oficio, solicitud, otro.',
-            'remitente.required' => 'El campo Remitente es obligatorio.',
-            'remitente.max' => 'El campo Remitente no puede superar los 100 caracteres.',
-            'entidad_id.required' => 'Debe seleccionar una Entidad remitente.',
-            'entidad_id.exists' => 'La Entidad seleccionada no existe.',
-            'observaciones.max' => 'El campo Observaciones no puede superar los 200 caracteres.',
-            'formato_documento.in' => 'El formato de documento debe ser uno de los siguientes: virtual, fisico.',
-            'respondido_con.exists' => 'El documento al que responde no existe.',
-        ]);
+        $request->validate(
+            [
+                'numero_oficio' => [
+                    'nullable',
+                    'string',
+                    'max:50',
+                    Rule::unique('documentos_recibidos')->where(function ($query) use ($request) {
+                        return $query->where('entidad_id', $request->entidad_id);
+                    })
+                ],
+                //'numero_oficio' => 'required|string|max:50|unique:documentos_recibidos,numero_oficio,NULL,id,entidad_id,' . $request->entidad_id, // Combinación única de numero_oficio y entidad_id
+                'asunto' => 'required|string|max:255',
+                'fecha_recibido' => 'required|date',
+                'tipo' => 'required',
+                'remitente' => 'required|string|max:100',
+                'entidad_id' => 'required|exists:entidades,id',
+                'observaciones' => 'nullable|string|max:200',
+                'formato_documento' => 'nullable|in:virtual,fisico', // Validación para el formato de documento
+                'respondido_con' => 'nullable|exists:documentos_emitidos,numero_oficio', // Validación para relacionar con un documento emitido
+            ],
+            [
+                'numero_oficio.required' => 'El campo Número de Oficio es obligatorio.',
+                'numero_oficio.max' => 'El Número de Oficio no puede superar los 50 caracteres.',
+                'numero_oficio.unique' => 'El Número de Oficio ya está registrado para esta entidad.',
+                'asunto.required' => 'El campo Asunto es obligatorio.',
+                'asunto.max' => 'El Asunto no puede superar los 255 caracteres.',
+                'fecha_recibido.required' => 'El campo Fecha Recibido es obligatorio.',
+                'fecha_recibido.date' => 'El campo Fecha Recibido debe ser una fecha válida.',
+                'tipo.required' => 'El campo Tipo es obligatorio.',
+                'tipo.in' => 'El campo Tipo debe ser uno de los siguientes valores: oficio, solicitud, otro.',
+                'remitente.required' => 'El campo Remitente es obligatorio.',
+                'remitente.max' => 'El campo Remitente no puede superar los 100 caracteres.',
+                'entidad_id.required' => 'Debe seleccionar una Entidad remitente.',
+                'entidad_id.exists' => 'La Entidad seleccionada no existe.',
+                'observaciones.max' => 'El campo Observaciones no puede superar los 200 caracteres.',
+                'formato_documento.in' => 'El formato de documento debe ser uno de los siguientes: virtual, fisico.',
+                'respondido_con.exists' => 'El documento al que responde no existe.',
+            ]
+        );
 
         try {
+
+            $numero_oficio = $request->numero_oficio ?: 'S/N(' . strtoupper(Str::random(2)) . ')';
+
             // Verificar si el checkbox de formato_documento está marcado (presente en la solicitud)
             $formatoDocumento = $request->has('formato_documento') && $request->formato_documento === 'virtual' ? 'virtual' : 'fisico';
 
@@ -164,11 +185,11 @@ $query->where('eliminado', false);
             $entidad = \App\Models\Entidad::find($request->entidad_id);
             $entidadSuperior = $entidad->entidad_superior_id ? \App\Models\Entidad::find($entidad->entidad_superior_id)->siglas : '';
 
-            $nombre = $request->tipo . '-' . $request->numero_oficio . '-' . $fechaRecibido . ($formatoDocumento === 'virtual' ? '-V' : '') . '-' . $entidad->siglas . ($entidadSuperior ? '-' . $entidadSuperior : '');
+            $nombre = $request->tipo . '-' . $numero_oficio . '-' . $fechaRecibido . ($formatoDocumento === 'virtual' ? '-V' : '') . '-' . $entidad->siglas . ($entidadSuperior ? '-' . $entidadSuperior : '');
 
             // Crear el documento recibido
             $documento = DocumentoRecibido::create([
-                'numero_oficio' => $request->numero_oficio,
+                'numero_oficio' => $numero_oficio,
                 'fecha_recibido' => $request->fecha_recibido,
                 'remitente' => $request->remitente,
                 'asunto' => $request->asunto,
@@ -301,7 +322,15 @@ $query->where('eliminado', false);
     {
         // Validación de los campos
         $request->validate([
-            'numero_oficio' => 'required|string|max:50|unique:documentos_emitidos,numero_oficio',
+            'numero_oficio' => [
+                'nullable',
+                'string',
+                'max:50',
+                Rule::unique('documentos_recibidos')->where(function ($query) use ($request) {
+                    return $query->where('entidad_id', $request->entidad_id);
+                })
+            ],
+            //'numero_oficio' => 'required|string|max:50|unique:documentos_emitidos,numero_oficio',
             'asunto' => 'required|string|max:255',
             'fecha_recibido' => 'required|date',
             'tipo' => 'required|in:oficio,solicitud,otro',
@@ -329,6 +358,9 @@ $query->where('eliminado', false);
         ]);
 
         try {
+
+            $numero_oficio = $request->numero_oficio ?: 'S/N(' . strtoupper(Str::random(2)) . ')';
+
             // Determinar el formato_documento (virtual o fisico)
             $formatoDocumento = $request->formato_documento === 'virtual' ? 'virtual' : 'fisico';
 
@@ -338,11 +370,11 @@ $query->where('eliminado', false);
             $entidadSuperior = $entidad->entidad_superior_id ? \App\Models\Entidad::find($entidad->entidad_superior_id)->siglas : '';
 
             //$nombreDoc = $request->tipo . '-' . $request->numero_oficio . '-' . $fechaRecibido . ($formatoDocumento === 'virtual' ? '-V' : '') . '-DSA/VRACAD';
-            $nombreDoc = $request->tipo . '-' . $request->numero_oficio . '-' . $fechaRecibido . ($formatoDocumento === 'virtual' ? '-V' : '') . '-' . $entidad->siglas . ($entidadSuperior ? '-' . $entidadSuperior : '');
+            $nombreDoc = $request->tipo . '-' . $numero_oficio . '-' . $fechaRecibido . ($formatoDocumento === 'virtual' ? '-V' : '') . '-' . $entidad->siglas . ($entidadSuperior ? '-' . $entidadSuperior : '');
 
             // Crear el documento emitido
             $documento = DocumentoRecibido::create([
-                'numero_oficio' => $request->numero_oficio, // El número de oficio se toma desde el formulario
+                'numero_oficio' => $numero_oficio, // El número de oficio se toma desde el formulario
                 'asunto' => $request->asunto,
                 'fecha_recibido' => $request->fecha_recibido,
                 'tipo' => $request->tipo,
