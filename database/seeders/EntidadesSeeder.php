@@ -11,7 +11,7 @@ class EntidadesSeeder extends Seeder
     {
 
         DB::statement('SET FOREIGN_KEY_CHECKS=0;'); // Deshabilitar restricciones
-        DB::table('nombre_tabla')->truncate(); // Vaciar tabla
+        DB::table('entidades')->truncate(); // Vaciar tabla
         DB::statement('SET FOREIGN_KEY_CHECKS=1;'); // Habilitar restricciones
 
         // 1. Insertar órganos de alta dirección
