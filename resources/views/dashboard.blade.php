@@ -76,7 +76,7 @@
                     <div class="col-md-3">
                         <div class="card-summary">
                             <h4>Documentos</h4>
-                            <p>{{ $total_documentos }}</p>
+                            <p>{{ $documentos_recibidos }}</p>
                         </div>
                     </div>
                     <div class="col-md-3">

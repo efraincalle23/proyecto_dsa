@@ -9,7 +9,7 @@ use App\Models\DocumentoEmitido;
 use App\Models\HistorialDocumento;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
-
+use App\Models\User;
 
 class DocumentosTodosController extends Controller
 {
@@ -490,23 +490,58 @@ class DocumentosTodosController extends Controller
 
     public function contarDocumentos(Request $request)
     {
+        $user = request()->user();
         // Contar los documentos en la tabla 'documentos_emitidos'
         $documentosEmitidosCount = DocumentoEmitido::count();
 
         // Contar los documentos en la tabla 'documentos_recibidos'
-        $documentosRecibidosCount = DocumentoRecibido::count();
 
         // Sumar los documentos emitidos y recibidos
-        $totalDocumentos = $documentosEmitidosCount + $documentosRecibidosCount;
 
         // Contar todos los usuarios registrados
         $usuariosCount = \App\Models\User::count();
 
         // Contar los registros en la tabla 'historial_documentos' donde el estado_nuevo es 'atendido'
-        $atendidosCount = DB::table('historial_documentos')
+        /*$atendidosCount = DB::table('historial_documentos')
             ->where('estado_nuevo', 'atendido')
-            ->count();
-        $doc_pendientes = $totalDocumentos - $atendidosCount;
+            ->count();*/
+        if ($user->rol === 'Administrativo') {
+
+            $documentosRecibidosCount = DocumentoRecibido::whereIn('id', function ($query) use ($user) {
+                $query->select('id_documento')
+                    ->from('historial_documentos')
+                    ->where('destinatario', $user->id) // Filtrar por destinatario igual al ID del usuario
+                    ->where('origen', 'Recibido'); // Filtrar por origen igual a "Recibido"
+            })->count();
+
+            $atendidosCount = DB::table('historial_documentos as h1')
+                ->join('documentos_recibidos as dr', 'h1.id_documento', '=', 'dr.id')
+                ->whereIn('h1.estado_nuevo', ['atendido', 'archivado']) // Estado más reciente "atendido" o "archivado"
+                ->where('h1.origen', 'recibido') // Solo documentos recibidos
+                ->whereRaw('h1.id = (SELECT h2.id FROM historial_documentos h2 WHERE h2.id_documento = h1.id_documento ORDER BY h2.created_at DESC LIMIT 1)')
+                ->whereExists(function ($query) use ($user) {
+                    $query->select(DB::raw(1))
+                        ->from('historial_documentos as h3')
+                        ->whereRaw('h3.id_documento = h1.id_documento')
+                        ->where('h3.destinatario', $user->id);
+                })
+                ->count();
+        } else {
+
+            $documentosRecibidosCount = DocumentoRecibido::count();
+
+            $atendidosCount = DB::table('historial_documentos as h1')
+                ->join('documentos_recibidos as dr', 'h1.id_documento', '=', 'dr.id')
+                ->whereIn('h1.estado_nuevo', ['atendido', 'archivado']) // Filtra estado_nuevo por 'atendido' o 'archivado'
+                ->where('h1.origen', 'recibido')
+                ->whereRaw('h1.id = (SELECT h2.id FROM historial_documentos h2 WHERE h2.id_documento = h1.id_documento ORDER BY h2.created_at DESC LIMIT 1)')
+                ->count();
+        }
+
+        $totalDocumentos = $documentosEmitidosCount + $documentosRecibidosCount;
+
+
+        $doc_pendientes = $documentosRecibidosCount - $atendidosCount;
 
         // Obtener la fecha de hace 7 días
         $fechaInicio = Carbon::now()->subDays(7);
