@@ -9,6 +9,11 @@ class EntidadesSeeder extends Seeder
 {
     public function run()
     {
+
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;'); // Deshabilitar restricciones
+        DB::table('nombre_tabla')->truncate(); // Vaciar tabla
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;'); // Habilitar restricciones
+
         // 1. Insertar órganos de alta dirección
         DB::table('entidades')->insert([
             ['id' => 1, 'nombre' => 'Asamblea Universitaria', 'siglas' => 'AU', 'tipo' => 'Oficina', 'entidad_superior_id' => null, 'eliminado' => false],
