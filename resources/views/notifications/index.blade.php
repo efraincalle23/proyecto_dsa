@@ -25,9 +25,7 @@
 
                         <div>
                             <p class="mb-1">
-                                <strong>{{ $notification->data['usuario'] }}</strong> te ha derivado el documento
-                                <strong>#{{ $notification->data['nombre_documento'] }}</strong> para
-                                <strong>{{ $notification->data['estado'] }}</strong>.
+                                <strong>{{ $notification->data['message'] }}</strong>
                             </p>
                             <small class="text-muted">
                                 <i class="bi bi-clock"></i>
